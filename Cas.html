@@ -1,1 +1,840 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1117">
+<title>صندوق المحل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --surface: #13161f;
+    --surface2: #1a1e2b;
+    --border: #252a3a;
+    --accent-green: #00d97e;
+    --accent-red: #ff4d6d;
+    --accent-gold: #f5c842;
+    --accent-blue: #3d8bff;
+    --text: #e8eaf0;
+    --text-muted: #636b85;
+    --text-dim: #8b92a8;
+    --glow-green: 0 0 24px rgba(0,217,126,0.25);
+    --glow-red: 0 0 24px rgba(255,77,109,0.25);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(0,217,126,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 80%, rgba(61,139,255,0.05) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 32px 0 28px;
+  }
+
+  .header-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #1a2a1a, #0f1f14);
+    border: 1.5px solid rgba(0,217,126,0.3);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+    box-shadow: var(--glow-green), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .header h1 {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 30%, #a0a8c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  /* ── Dashboard cards ── */
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .card-net {
+    grid-column: 1 / -1;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .card-income::before { background: radial-gradient(ellipse at 50% 0%, rgba(0,217,126,0.08), transparent 70%); }
+  .card-expense::before { background: radial-gradient(ellipse at 50% 0%, rgba(255,77,109,0.08), transparent 70%); }
+  .card-net::before { background: radial-gradient(ellipse at 50% 0%, rgba(245,200,66,0.06), transparent 70%); }
+
+  .card:hover::before { opacity: 1; }
+
+  .card-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-label .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .card-income .dot { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+  .card-expense .dot { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+  .card-net .dot { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
+
+  .card-value {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    direction: ltr;
+    text-align: right;
+  }
+
+  .card-net .card-value { font-size: 30px; }
+
+  .card-income .card-value { color: var(--accent-green); }
+  .card-expense .card-value { color: var(--accent-red); }
+
+  .card-net .card-value.positive { color: var(--accent-gold); text-shadow: 0 0 20px rgba(245,200,66,0.3); }
+  .card-net .card-value.negative { color: var(--accent-red); text-shadow: 0 0 20px rgba(255,77,109,0.3); }
+  .card-net .card-value.zero { color: var(--text-dim); }
+
+  .currency {
+    font-size: 0.65em;
+    opacity: 0.7;
+    margin-right: 3px;
+  }
+
+  /* ── Entry Form ── */
+  .form-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 14px;
+  }
+
+  .form-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .toggle-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .toggle-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 8px;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .toggle-btn.income.active {
+    background: rgba(0,217,126,0.1);
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    box-shadow: var(--glow-green);
+  }
+
+  .toggle-btn.expense.active {
+    background: rgba(255,77,109,0.1);
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+    box-shadow: var(--glow-red);
+  }
+
+  .input-group {
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    direction: rtl;
+  }
+
+  .input-field::placeholder { color: var(--text-muted); font-weight: 300; }
+
+  .input-field:focus {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(61,139,255,0.1);
+  }
+
+  input[type="number"].input-field { direction: ltr; text-align: right; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-submit:hover::after { opacity: 1; }
+  .btn-submit:active { transform: scale(0.98); }
+
+  .btn-submit.income-mode {
+    background: linear-gradient(135deg, #00d97e, #00b868);
+    color: #002a18;
+    box-shadow: var(--glow-green);
+  }
+
+  .btn-submit.expense-mode {
+    background: linear-gradient(135deg, #ff4d6d, #d93354);
+    color: #1a0008;
+    box-shadow: var(--glow-red);
+  }
+
+  /* ── Transactions Table ── */
+  .table-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .tx-count {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .btn-reset {
+    background: rgba(255,77,109,0.08);
+    border: 1px solid rgba(255,77,109,0.2);
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-red);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn-reset:hover {
+    background: rgba(255,77,109,0.15);
+    border-color: rgba(255,77,109,0.4);
+  }
+
+  .tx-list { list-style: none; }
+
+  .tx-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.15s;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tx-item:hover { background: rgba(255,255,255,0.02); }
+  .tx-item:last-child { border-bottom: none; }
+
+  .tx-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .tx-icon.income { background: rgba(0,217,126,0.1); }
+  .tx-icon.expense { background: rgba(255,77,109,0.1); }
+
+  .tx-info { flex: 1; min-width: 0; }
+
+  .tx-desc {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tx-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    direction: ltr;
+    text-align: right;
+  }
+
+  .tx-amount {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+    direction: ltr;
+  }
+
+  .tx-amount.income { color: var(--accent-green); }
+  .tx-amount.expense { color: var(--accent-red); }
+
+  .btn-del {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 7px;
+    font-size: 14px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-del:hover {
+    background: rgba(255,77,109,0.1);
+    color: var(--accent-red);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; font-weight: 300; }
+
+  /* ── Confirm modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.show .modal { transform: scale(1); }
+
+  .modal-icon { font-size: 36px; margin-bottom: 14px; }
+
+  .modal h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .modal p {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+
+  .modal-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .btn-cancel {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover { border-color: var(--text-dim); }
+
+  .btn-confirm-del {
+    background: linear-gradient(135deg, #ff4d6d, #d93354);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 11px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-confirm-del:hover { opacity: 0.9; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── Responsive ── */
+  @media (max-width: 400px) {
+    .card-value { font-size: 18px; }
+    .card-net .card-value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">🏪</div>
+    <h1>صندوق المحل</h1>
+    <p>إدارة الكاش — خاص ومحلي 100% 🇯🇴</p>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard">
+    <div class="card card-income">
+      <div class="card-label"><span class="dot"></span> إجمالي الدخل</div>
+      <div class="card-value" id="totalIncome"><span class="currency">د.أ</span>0.00</div>
+    </div>
+    <div class="card card-expense">
+      <div class="card-label"><span class="dot"></span> إجمالي المصاريف</div>
+      <div class="card-value" id="totalExpense"><span class="currency">د.أ</span>0.00</div>
+    </div>
+    <div class="card card-net">
+      <div class="card-label"><span class="dot"></span> صافي الصندوق الآن</div>
+      <div class="card-value zero" id="netCash"><span class="currency">د.أ</span>0.00</div>
+    </div>
+  </div>
+
+  <!-- Entry Form -->
+  <div class="form-panel">
+    <div class="form-title">📝 تسجيل عملية جديدة</div>
+
+    <div class="toggle-row">
+      <button class="toggle-btn income active" id="btnIncome" onclick="setType('income')">
+        ▲ وارد
+      </button>
+      <button class="toggle-btn expense" id="btnExpense" onclick="setType('expense')">
+        ▼ صادر
+      </button>
+    </div>
+
+    <div class="input-group">
+      <label>البيان / الوصف</label>
+      <input class="input-field" type="text" id="descInput" placeholder="مثال: مبيعات اليوم، إيجار، فاتورة..." maxlength="80">
+    </div>
+
+    <div class="input-group">
+      <label>المبلغ (دينار)</label>
+      <input class="input-field" type="number" id="amountInput" placeholder="0.00" min="0" step="0.01">
+    </div>
+
+    <button class="btn-submit income-mode" id="submitBtn" onclick="addTransaction()">
+      ✓ إضافة وارد
+    </button>
+  </div>
+
+  <!-- Transactions -->
+  <div class="table-panel">
+    <div class="table-header">
+      <div class="table-title">
+        📋 سجل العمليات
+        <span class="tx-count" id="txCount">0</span>
+      </div>
+      <button class="btn-reset" onclick="confirmReset()">
+        🗑 تصفير الكل
+      </button>
+    </div>
+    <ul class="tx-list" id="txList">
+      <li class="empty-state">
+        <div class="empty-icon">🧾</div>
+        <p>لا توجد عمليات بعد<br>سجّل أول عملية من الأعلى</p>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon" id="modalIcon">⚠️</div>
+    <h3 id="modalTitle">تأكيد الحذف</h3>
+    <p id="modalMsg">هل أنت متأكد؟</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+      <button class="btn-confirm-del" id="modalConfirm">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'cash_register_v1';
+  let currentType = 'income';
+  let pendingAction = null;
+
+  // ── Data ──────────────────────────────────────────────
+  function loadData() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  // ── UI Type Toggle ────────────────────────────────────
+  function setType(type) {
+    currentType = type;
+    document.getElementById('btnIncome').classList.toggle('active', type === 'income');
+    document.getElementById('btnExpense').classList.toggle('active', type === 'expense');
+    const btn = document.getElementById('submitBtn');
+    btn.className = 'btn-submit ' + (type === 'income' ? 'income-mode' : 'expense-mode');
+    btn.textContent = type === 'income' ? '✓ إضافة وارد' : '✓ إضافة صادر';
+  }
+
+  // ── Add Transaction ───────────────────────────────────
+  function addTransaction() {
+    const desc = document.getElementById('descInput').value.trim();
+    const amountRaw = parseFloat(document.getElementById('amountInput').value);
+
+    if (!desc) { showToast('✏️ أدخل البيان أولاً'); return; }
+    if (isNaN(amountRaw) || amountRaw <= 0) { showToast('💰 أدخل مبلغاً صحيحاً'); return; }
+
+    const data = loadData();
+    const now = new Date();
+    data.unshift({
+      id: Date.now(),
+      type: currentType,
+      desc,
+      amount: amountRaw,
+      date: now.toLocaleDateString('ar-JO'),
+      time: now.toLocaleTimeString('ar-JO', { hour: '2-digit', minute: '2-digit' })
+    });
+    saveData(data);
+
+    document.getElementById('descInput').value = '';
+    document.getElementById('amountInput').value = '';
+
+    render();
+    showToast(currentType === 'income' ? '✅ تم إضافة الوارد' : '✅ تم إضافة الصادر');
+  }
+
+  // ── Delete ────────────────────────────────────────────
+  function confirmDelete(id) {
+    const data = loadData();
+    const tx = data.find(t => t.id === id);
+    if (!tx) return;
+    openModal(
+      '🗑️', 'حذف العملية',
+      `هل تريد حذف: "${tx.desc}" (${fmt(tx.amount)} د.أ)؟`,
+      () => {
+        const newData = loadData().filter(t => t.id !== id);
+        saveData(newData);
+        render();
+        showToast('🗑 تم حذف العملية');
+      }
+    );
+  }
+
+  function confirmReset() {
+    if (loadData().length === 0) { showToast('📭 الصندوق فارغ أصلاً'); return; }
+    openModal(
+      '⚠️', 'تصفير الصندوق',
+      'هل تريد حذف جميع العمليات وتصفير الصندوق كامل؟ هذا الإجراء لا يمكن التراجع عنه.',
+      () => {
+        saveData([]);
+        render();
+        showToast('🧹 تم تصفير الصندوق');
+      }
+    );
+  }
+
+  // ── Render ────────────────────────────────────────────
+  function fmt(n) {
+    return n.toLocaleString('ar-JO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function render() {
+    const data = loadData();
+
+    let income = 0, expense = 0;
+    data.forEach(t => { if (t.type === 'income') income += t.amount; else expense += t.amount; });
+    const net = income - expense;
+
+    document.getElementById('totalIncome').innerHTML  = `<span class="currency">د.أ</span>${fmt(income)}`;
+    document.getElementById('totalExpense').innerHTML = `<span class="currency">د.أ</span>${fmt(expense)}`;
+
+    const netEl = document.getElementById('netCash');
+    netEl.innerHTML = `<span class="currency">د.أ</span>${fmt(Math.abs(net))}${net < 0 ? ' −' : ''}`;
+    netEl.className = 'card-value ' + (net > 0 ? 'positive' : net < 0 ? 'negative' : 'zero');
+
+    document.getElementById('txCount').textContent = data.length;
+
+    const list = document.getElementById('txList');
+    if (data.length === 0) {
+      list.innerHTML = `
+        <li class="empty-state">
+          <div class="empty-icon">🧾</div>
+          <p>لا توجد عمليات بعد<br>سجّل أول عملية من الأعلى</p>
+        </li>`;
+      return;
+    }
+
+    list.innerHTML = data.map(t => `
+      <li class="tx-item">
+        <div class="tx-icon ${t.type}">${t.type === 'income' ? '▲' : '▼'}</div>
+        <div class="tx-info">
+          <div class="tx-desc">${escHtml(t.desc)}</div>
+          <div class="tx-time">${t.date} — ${t.time}</div>
+        </div>
+        <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${fmt(t.amount)}</div>
+        <button class="btn-del" onclick="confirmDelete(${t.id})" title="حذف">✕</button>
+      </li>
+    `).join('');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Modal ─────────────────────────────────────────────
+  function openModal(icon, title, msg, onConfirm) {
+    document.getElementById('modalIcon').textContent = icon;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMsg').textContent = msg;
+    pendingAction = onConfirm;
+    document.getElementById('modal').classList.add('show');
+    document.getElementById('modalConfirm').onclick = () => { closeModal(); pendingAction && pendingAction(); };
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  // ── Toast ─────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  // ── Enter key ─────────────────────────────────────────
+  ['descInput','amountInput'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') addTransaction();
+    });
+  });
+
+  // ── Init ──────────────────────────────────────────────
+  render();
+</script>
+</body>
+</html>
 
