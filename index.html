@@ -1,4 +1,4 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -213,6 +213,10 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
       </select>
     </div>
     <div class="ig">
+      <label>عدد الباكيتات الموجودة (المخزون الحالي)</label>
+      <input class="ifield" type="number" id="cigStock" placeholder="0" min="0" step="1">
+    </div>
+    <div class="ig">
       <label>عدد الباكيتات المباعة</label>
       <input class="ifield" type="number" id="cigSold" placeholder="0" min="0" step="1" oninput="updCalc()">
     </div>
@@ -237,7 +241,7 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
     <table>
       <thead>
         <tr>
-          <th>النوع</th><th>السعر</th><th>مباع</th><th>متبقي</th><th>قيمة المباع</th><th>قيمة المتبقي</th>
+          <th>النوع</th><th>السعر</th><th>موجود</th><th>مباع</th><th>متبقي</th><th>قيمة المباع</th>
         </tr>
       </thead>
       <tbody id="cigTbody"></tbody>
@@ -321,7 +325,7 @@ function addTx() {
 
 function addCig() {
   const idx    = parseInt(document.getElementById('cigType').value);
-  const sold   = parseInt(document.getElementById('cigSold').value)   || 0;
+  const stock  = parseInt(document.getElementById('cigStock').value)  || 0;
   const unsold = parseInt(document.getElementById('cigUnsold').value) || 0;
   if (isNaN(idx)||document.getElementById('cigType').value==='') { toast('🚬 اختر نوع الدخان'); return; }
   if (sold===0&&unsold===0) { toast('📦 أدخل عدد الباكيتات'); return; }
@@ -333,12 +337,13 @@ function addCig() {
       date:now.toLocaleDateString('ar-JO'),
       time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
   }
-  d.cig.unshift({id:Date.now()+1,ci:idx,sold,unsold,price:PRICES[idx],
+  d.cig.unshift({id:Date.now()+1,ci:idx,stock,sold,unsold,price:PRICES[idx],
     tsold:PRICES[idx]*sold,tunsold:PRICES[idx]*unsold,
     date:now.toLocaleDateString('ar-JO'),
     time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
   save(d);
   document.getElementById('cigType').value='';
+  document.getElementById('cigStock').value='';
   document.getElementById('cigSold').value='';
   document.getElementById('cigUnsold').value='';
   document.getElementById('calcVal').textContent='0.000 د.أ';
@@ -382,14 +387,14 @@ function render() {
   document.getElementById('cigSoldVal').innerHTML=`<span class="cur">د.أ</span>${fmt(cs)}`;
   document.getElementById('cigStockVal').innerHTML=`<span class="cur">د.أ</span>${fmt(cu)}`;
 
-  const agg=NAMES.map((_,i)=>({n:NAMES[i],p:PRICES[i],s:0,u:0}));
-  cigs.forEach(c=>{ agg[c.ci].s+=c.sold; agg[c.ci].u+=c.unsold; });
-  let ts=0,tu=0,tsv=0,tuv=0;
+  const agg=NAMES.map((_,i)=>({n:NAMES[i],p:PRICES[i],k:0,s:0,u:0}));
+  cigs.forEach(c=>{ agg[c.ci].k+=c.stock||0; agg[c.ci].s+=c.sold; agg[c.ci].u+=c.unsold; });
+  let ts=0,tu=0,tk=0,tsv=0;
   document.getElementById('cigTbody').innerHTML=agg.map(r=>{
-    const sv=r.s*r.p,uv=r.u*r.p; ts+=r.s;tu+=r.u;tsv+=sv;tuv+=uv;
-    return `<tr><td>${r.n}</td><td style="color:var(--dim)">${r.p.toFixed(3)}</td><td class="sv">${r.s}</td><td class="uv">${r.u}</td><td class="sv">${fmt(sv)}</td><td class="uv">${fmt(uv)}</td></tr>`;
+    const sv=r.s*r.p; ts+=r.s;tu+=r.u;tk+=r.k;tsv+=sv;
+    return `<tr><td>${r.n}</td><td style="color:var(--dim)">${r.p.toFixed(3)}</td><td style="color:var(--blue);font-family:'Tajawal';font-weight:700">${r.k}</td><td class="sv">${r.s}</td><td class="uv">${r.u}</td><td class="sv">${fmt(sv)}</td></tr>`;
   }).join('');
-  document.getElementById('cigTfoot').innerHTML=`<tr><td colspan="2" style="color:var(--gold)">المجموع</td><td class="sv">${ts}</td><td class="uv">${tu}</td><td class="tv">${fmt(tsv)}</td><td class="uv">${fmt(tuv)}</td></tr>`;
+  document.getElementById('cigTfoot').innerHTML=`<tr><td colspan="2" style="color:var(--gold)">المجموع</td><td style="color:var(--blue);font-family:'Tajawal';font-weight:800">${tk}</td><td class="sv">${ts}</td><td class="uv">${tu}</td><td class="tv">${fmt(tsv)}</td></tr>`;
 
   document.getElementById('txCnt').textContent=txs.length;
   const list=document.getElementById('txList');
