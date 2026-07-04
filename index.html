@@ -156,6 +156,18 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
     <p>إدارة الكاش والدخان والديون — خاص ومحلي 100% 🇯🇴</p>
   </div>
 
+  <!-- نسخة احتياطية -->
+  <div class="ctw" style="margin-bottom:12px;">
+    <div class="cth">
+      <div class="ctt">💾 نسخة احتياطية للبيانات</div>
+    </div>
+    <div style="padding:14px 17px;display:flex;gap:8px;">
+      <button class="bsub bim" style="flex:1" onclick="exportBackup()">⬇️ تنزيل نسخة</button>
+      <button class="bsub" style="flex:1;background:var(--surface2);color:var(--text);border:1.5px solid var(--border)" onclick="document.getElementById('importFile').click()">⬆️ استعادة نسخة</button>
+    </div>
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
+  </div>
+
   <!-- كاش dashboard -->
   <div class="dash">
     <div class="card ci">
