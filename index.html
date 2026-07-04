@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1117">
-<title>كاش المحل</title>
+<title>سجل الديون</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -18,43 +18,29 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Cairo','Tajawal',sans-serif;min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(0,217,126,0.06),transparent 60%),radial-gradient(ellipse 50% 50% at 10% 80%,rgba(61,139,255,0.05),transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px);pointer-events:none;z-index:0;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(245,200,66,0.06),transparent 60%),radial-gradient(ellipse 50% 50% at 10% 80%,rgba(61,139,255,0.05),transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px);pointer-events:none;z-index:0;}
 .wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:20px 16px 80px;}
 
-.header{text-align:center;padding:26px 0 22px;}
-.hicon{width:58px;height:58px;background:linear-gradient(135deg,#1a2a1a,#0f1f14);border:1.5px solid rgba(0,217,126,0.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px;box-shadow:var(--glow-g);}
-.header h1{font-family:'Tajawal';font-size:24px;font-weight:800;background:linear-gradient(135deg,#fff 30%,#a0a8c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.backlink{display:inline-flex;align-items:center;gap:6px;color:var(--dim);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:14px;}
+.backlink:hover{color:var(--text);}
+
+.header{text-align:center;padding:6px 0 22px;}
+.hicon{width:58px;height:58px;background:linear-gradient(135deg,#2a2410,#1f1a0f);border:1.5px solid rgba(245,200,66,0.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px;box-shadow:0 0 24px rgba(245,200,66,0.2);}
+.header h1{font-family:'Tajawal';font-size:22px;font-weight:800;background:linear-gradient(135deg,#fff 30%,#a0a8c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .header p{font-size:12px;color:var(--muted);margin-top:3px;font-weight:300;}
 
-.dash{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.card-net{grid-column:1/-1;}
+.dash{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px 17px;}
 .card-label{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
 .dot{width:6px;height:6px;border-radius:50%;}
 .ci .dot{background:var(--green);box-shadow:0 0 8px var(--green);}
 .ce .dot{background:var(--red);box-shadow:0 0 8px var(--red);}
-.cn .dot{background:var(--gold);box-shadow:0 0 8px var(--gold);}
-.cp .dot{background:var(--purple);box-shadow:0 0 8px var(--purple);}
 .val{font-family:'Tajawal';font-size:19px;font-weight:800;direction:ltr;text-align:right;}
-.cn .val{font-size:27px;}
 .ci .val{color:var(--green);}
 .ce .val{color:var(--red);}
-.cn .val.pos{color:var(--gold);text-shadow:0 0 20px rgba(245,200,66,0.3);}
-.cn .val.neg{color:var(--red);}
-.cn .val.zero{color:var(--dim);}
-.cp .val{color:var(--purple);}
 .cur{font-size:0.6em;opacity:0.7;margin-right:2px;}
 
-.cig-dash{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-
-.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
-.tab{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 6px;font-family:'Cairo';font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
-.tab.tc{background:rgba(0,217,126,0.08);border-color:var(--green);color:var(--green);box-shadow:var(--glow-g);}
-.tab.tp{background:rgba(168,85,247,0.08);border-color:var(--purple);color:var(--purple);box-shadow:0 0 20px rgba(168,85,247,0.2);}
-.tab.td{background:rgba(245,200,66,0.08);border-color:var(--gold);color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,0.2);}
-
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;display:none;}
-.panel.on{display:block;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;}
 .ptitle{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;gap:7px;}
 
 .trow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
@@ -69,68 +55,54 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .ifield:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(61,139,255,0.1);}
 input[type=number].ifield{direction:ltr;text-align:right;}
 input[type=tel].ifield{direction:ltr;text-align:right;}
-select.ifield{cursor:pointer;}
+.phonerow{display:flex;gap:8px;}
+.phonerow .ifield{flex:1;}
+.bpick{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:0 15px;color:var(--dim);font-size:18px;cursor:pointer;flex-shrink:0;}
+.bpick:hover{border-color:var(--blue);color:var(--blue);}
 
 .bsub{width:100%;padding:13px;border:none;border-radius:var(--rs);font-family:'Cairo';font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;}
 .bsub:active{transform:scale(0.98);}
 .bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;box-shadow:var(--glow-g);}
 .bem{background:linear-gradient(135deg,#ff4d6d,#d93354);color:#1a0008;box-shadow:var(--glow-r);}
-.bpm{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;box-shadow:0 0 20px rgba(168,85,247,0.3);}
 
-.ccalc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
-.ccalc-lbl{font-size:12px;color:var(--muted);}
-.ccalc-val{font-family:'Tajawal';font-size:18px;font-weight:800;color:var(--purple);}
+.searchbar{margin-bottom:12px;}
 
-.divider{height:1px;background:var(--border);margin:14px 0;}
-
-.ctw{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
-.cth{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.ctt{font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:7px;}
-table{width:100%;border-collapse:collapse;}
-thead th{font-size:11px;font-weight:600;color:var(--muted);padding:9px 12px;text-align:right;background:var(--surface2);border-bottom:1px solid var(--border);}
-tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);}
-tbody tr:last-child{border-bottom:none;}
-tbody tr:hover{background:rgba(255,255,255,0.02);}
-tbody td{padding:10px 12px;font-size:13px;font-weight:500;}
-.sv{color:var(--green);font-family:'Tajawal';font-weight:700;}
-.uv{color:var(--dim);font-family:'Tajawal';}
-.tv{color:var(--purple);font-family:'Tajawal';font-weight:800;}
-tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surface2);border-top:1px solid var(--border);}
-
-.txp{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.txp{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
 .txh{padding:13px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
 .txt{font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:7px;}
 .txc{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--dim);}
-.brst{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.2);border-radius:var(--rs);padding:6px 12px;font-family:'Cairo';font-size:12px;font-weight:600;color:var(--red);cursor:pointer;transition:all 0.2s;}
-.brst:hover{background:rgba(255,77,109,0.15);}
-.txlist{list-style:none;}
-.txi{display:flex;align-items:center;gap:8px;padding:12px 17px;border-bottom:1px solid rgba(255,255,255,0.03);animation:si 0.3s ease;}
-@keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.txi:last-child{border-bottom:none;}
-.txi:hover{background:rgba(255,255,255,0.02);}
-.txic{width:33px;height:33px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.txic.income{background:rgba(0,217,126,0.1);}
-.txic.expense{background:rgba(255,77,109,0.1);}
-.txic.cig{background:rgba(168,85,247,0.1);}
-.txin{flex:1;min-width:0;}
-.txd{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.txtime{font-size:11px;color:var(--muted);margin-top:1px;direction:ltr;text-align:right;}
-.txa{font-family:'Tajawal';font-size:15px;font-weight:800;flex-shrink:0;direction:ltr;}
-.txa.income{color:var(--green);}
-.txa.expense{color:var(--red);}
-.txa.cig{color:var(--purple);}
-.bdel{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:7px;font-size:13px;transition:all 0.2s;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
-.bdel:hover{background:rgba(255,77,109,0.1);color:var(--red);}
-.bpay{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:7px;font-size:13px;transition:all 0.2s;flex-shrink:0;}
+
+.glist{list-style:none;}
+.gcard{border-bottom:1px solid var(--border);}
+.gcard:last-child{border-bottom:none;}
+.ghead{display:flex;align-items:center;gap:10px;padding:13px 17px;background:rgba(255,255,255,0.015);}
+.gic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.gic.lent{background:rgba(0,217,126,0.1);}
+.gic.borrowed{background:rgba(255,77,109,0.1);}
+.gin{flex:1;min-width:0;}
+.gname{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gsub{font-size:11px;color:var(--muted);margin-top:1px;}
+.gtotal{font-family:'Tajawal';font-size:16px;font-weight:800;direction:ltr;flex-shrink:0;}
+.gtotal.lent{color:var(--green);}
+.gtotal.borrowed{color:var(--red);}
+.bwa{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;border-radius:8px;font-size:15px;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
+.bwa:hover{background:rgba(0,217,126,0.12);color:var(--green);}
+
+.ditem{display:flex;align-items:center;gap:8px;padding:10px 17px 10px 17px;padding-right:56px;border-top:1px dashed rgba(255,255,255,0.04);}
+.ditem .dd{flex:1;min-width:0;font-size:12.5px;font-weight:500;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ditem .dt{font-size:10.5px;color:var(--muted);margin-top:1px;direction:ltr;text-align:right;}
+.ditem .da{font-family:'Tajawal';font-size:13px;font-weight:700;direction:ltr;flex-shrink:0;}
+.ditem .da.lent{color:var(--green);}
+.ditem .da.borrowed{color:var(--red);}
+.bpay{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:6px;font-size:12px;flex-shrink:0;}
 .bpay:hover{background:rgba(0,217,126,0.1);color:var(--green);}
-.bwa{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:7px;font-size:13px;transition:all 0.2s;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
-.bwa:hover{background:rgba(0,217,126,0.1);color:var(--green);}
+.bdel{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:6px;font-size:12px;flex-shrink:0;}
+.bdel:hover{background:rgba(255,77,109,0.1);color:var(--red);}
+.paidnote{padding:6px 17px 10px 56px;font-size:11px;color:var(--muted);}
+
 .empty{text-align:center;padding:40px 24px;color:var(--muted);}
 .empty .ei{font-size:36px;margin-bottom:10px;opacity:0.4;}
 .empty p{font-size:13px;font-weight:300;}
-.dstat{font-size:10px;font-weight:700;margin-right:6px;}
-.dstat.unpaid{color:var(--gold);}
-.dstat.paid{color:var(--green);}
 
 .mo{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
 .mo.show{opacity:1;pointer-events:all;}
@@ -150,54 +122,14 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
 <body>
 <div class="wrap">
 
+
   <div class="header">
-    <div class="hicon">🏪</div>
-    <h1>كاش المحل</h1>
-    <p>إدارة الكاش والدخان والديون — خاص ومحلي 100% 🇯🇴</p>
+    <div class="hicon">💳</div>
+    <h1>سجل الديون</h1>
+    <p>تجميع حسب الزبون — تذكير واتساب تلقائي</p>
   </div>
 
-  <!-- نسخة احتياطية -->
-  <div class="ctw" style="margin-bottom:12px;">
-    <div class="cth">
-      <div class="ctt">💾 نسخة احتياطية للبيانات</div>
-    </div>
-    <div style="padding:14px 17px;display:flex;gap:8px;">
-      <button class="bsub bim" style="flex:1" onclick="exportBackup()">⬇️ تنزيل نسخة</button>
-      <button class="bsub" style="flex:1;background:var(--surface2);color:var(--text);border:1.5px solid var(--border)" onclick="document.getElementById('importFile').click()">⬆️ استعادة نسخة</button>
-    </div>
-    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
-  </div>
-
-  <!-- كاش dashboard -->
   <div class="dash">
-    <div class="card ci">
-      <div class="card-label"><span class="dot"></span>إجمالي الوارد</div>
-      <div class="val" id="totalIncome"><span class="cur">د.أ</span>0.000</div>
-    </div>
-    <div class="card ce">
-      <div class="card-label"><span class="dot"></span>إجمالي الصادر</div>
-      <div class="val" id="totalExpense"><span class="cur">د.أ</span>0.000</div>
-    </div>
-    <div class="card cn card-net">
-      <div class="card-label"><span class="dot"></span>صافي الصندوق الآن</div>
-      <div class="val zero" id="netCash"><span class="cur">د.أ</span>0.000</div>
-    </div>
-  </div>
-
-  <!-- دخان dashboard -->
-  <div class="cig-dash">
-    <div class="card cp">
-      <div class="card-label"><span class="dot"></span>قيمة الدخان المباع</div>
-      <div class="val" id="cigSoldVal"><span class="cur">د.أ</span>0.000</div>
-    </div>
-    <div class="card cp">
-      <div class="card-label"><span class="dot"></span>قيمة دخان المحل</div>
-      <div class="val" id="cigStockVal"><span class="cur">د.أ</span>0.000</div>
-    </div>
-  </div>
-
-  <!-- ديون dashboard -->
-  <div class="cig-dash">
     <div class="card ci">
       <div class="card-label"><span class="dot"></span>ديون لنا (عند الزبائن)</div>
       <div class="val" id="debtToUs"><span class="cur">د.أ</span>0.000</div>
@@ -208,67 +140,7 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab tc" id="tabC" onclick="switchTab('cash')">💵 كاش</button>
-    <button class="tab" id="tabG" onclick="switchTab('cig')">🚬 الدخان</button>
-    <button class="tab" id="tabD" onclick="switchTab('debt')">💳 الديون</button>
-  </div>
-
-  <!-- Panel كاش -->
-  <div class="panel on" id="pCash">
-    <div class="ptitle">📝 تسجيل عملية كاش</div>
-    <div class="trow">
-      <button class="tbtn inc on" id="btnInc" onclick="setType('income')">▲ وارد كاش</button>
-      <button class="tbtn exp" id="btnExp" onclick="setType('expense')">▼ صادر كاش</button>
-    </div>
-    <div class="ig">
-      <label>البيان / الوصف</label>
-      <input class="ifield" type="text" id="descInp" placeholder="مثال: مبيعات، إيجار، فاتورة..." maxlength="80">
-    </div>
-    <div class="ig">
-      <label>المبلغ (دينار)</label>
-      <input class="ifield" type="number" id="amtInp" placeholder="0.000" min="0" step="0.001">
-    </div>
-    <button class="bsub bim" id="subBtn" onclick="addTx()">✓ إضافة وارد</button>
-  </div>
-
-  <!-- Panel دخان -->
-  <div class="panel" id="pCig">
-    <div class="ptitle">🚬 صادر الدخان</div>
-    <div class="ig">
-      <label>نوع الدخان</label>
-      <select class="ifield" id="cigType" onchange="updCalc()">
-        <option value="">— اختر النوع —</option>
-        <option value="0">النوع الأول — 2.100 د.أ</option>
-        <option value="1">النوع الثاني — 2.400 د.أ</option>
-        <option value="2">النوع الثالث — 2.600 د.أ</option>
-        <option value="3">النوع الرابع — 2.850 د.أ</option>
-      </select>
-    </div>
-    <div class="ig">
-      <label>عدد الباكيتات الموجودة (المخزون الحالي)</label>
-      <input class="ifield" type="number" id="cigStock" placeholder="0" min="0" step="1">
-    </div>
-    <div class="ig">
-      <label>عدد الباكيتات المباعة</label>
-      <input class="ifield" type="number" id="cigSold" placeholder="0" min="0" step="1" oninput="updCalc()">
-    </div>
-    <div class="ig">
-      <label>عدد الباكيتات المتبقية (غير مباعة)</label>
-      <input class="ifield" type="number" id="cigUnsold" placeholder="0" min="0" step="1" oninput="updCalc()">
-    </div>
-    <div class="ccalc">
-      <span class="ccalc-lbl">قيمة المبيع (سيُسجَّل كصادر كاش)</span>
-      <span class="ccalc-val" id="calcVal">0.000 د.أ</span>
-    </div>
-    <button class="bsub bpm" onclick="addCig()">✓ تسجيل صادر الدخان</button>
-    <div class="divider"></div>
-    <div class="ptitle">📊 جدول الدخان</div>
-  </div>
-
-  <!-- Panel ديون -->
-  <div class="panel" id="pDebt">
+  <div class="panel">
     <div class="ptitle">💳 تسجيل دين جديد</div>
     <div class="trow">
       <button class="tbtn inc on" id="btnLent" onclick="setDType('lent')">👤 زبون مدين للمحل</button>
@@ -279,8 +151,11 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
       <input class="ifield" type="text" id="debtName" placeholder="مثال: أبو محمد" maxlength="50">
     </div>
     <div class="ig">
-      <label>رقم الواتساب (اختياري — لإرسال تذكير)</label>
-      <input class="ifield" type="tel" id="debtPhone" placeholder="07xxxxxxxx" maxlength="15">
+      <label>رقم الواتساب (لإرسال تذكير تلقائي)</label>
+      <div class="phonerow">
+        <input class="ifield" type="tel" id="debtPhone" placeholder="07xxxxxxxx" maxlength="15">
+        <button type="button" class="bpick" onclick="pickContact()" title="اختيار من جهات الاتصال">📇</button>
+      </div>
     </div>
     <div class="ig">
       <label>البيان / سبب الدين</label>
@@ -291,37 +166,18 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
       <input class="ifield" type="number" id="debtAmt" placeholder="0.000" min="0" step="0.001">
     </div>
     <button class="bsub bim" id="debtSubBtn" onclick="addDebt()">✓ تسجيل الدين</button>
-    <div class="divider"></div>
-    <div class="ptitle">📋 سجل الديون <span class="txc" id="debtCnt">0</span></div>
-    <ul class="txlist" id="debtList">
-      <li class="empty"><div class="ei">💳</div><p>لا توجد ديون مسجلة</p></li>
-    </ul>
   </div>
 
-  <!-- جدول الدخان -->
-  <div class="ctw">
-    <div class="cth">
-      <div class="ctt">🚬 ملخص أنواع الدخان</div>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>النوع</th><th>السعر</th><th>موجود</th><th>مباع</th><th>متبقي</th><th>قيمة المباع</th>
-        </tr>
-      </thead>
-      <tbody id="cigTbody"></tbody>
-      <tfoot id="cigTfoot"></tfoot>
-    </table>
+  <div class="ig searchbar">
+    <input class="ifield" type="text" id="searchInp" placeholder="🔍 دوّر باسم الزبون..." oninput="render()">
   </div>
 
-  <!-- سجل العمليات -->
   <div class="txp">
     <div class="txh">
-      <div class="txt">📋 سجل العمليات <span class="txc" id="txCnt">0</span></div>
-      <button class="brst" onclick="confirmReset()">🗑 تصفير الكل</button>
+      <div class="txt">📋 الزبائن <span class="txc" id="custCnt">0</span></div>
     </div>
-    <ul class="txlist" id="txList">
-      <li class="empty"><div class="ei">🧾</div><p>لا توجد عمليات بعد</p></li>
+    <ul class="glist" id="debtGroups">
+      <li class="empty"><div class="ei">💳</div><p>لا توجد ديون مسجلة</p></li>
     </ul>
   </div>
 
@@ -344,36 +200,19 @@ tfoot td{padding:10px 12px;font-size:13px;font-weight:700;background:var(--surfa
 
 <script>
 const SK = 'cash_store_v2';
-const PRICES = [2.10, 2.40, 2.60, 2.85];
-const NAMES  = ['النوع الأول','النوع الثاني','النوع الثالث','النوع الرابع'];
-let ctype = 'income', dtype = 'lent', pending = null;
+let dtype = 'lent', pending = null;
 
 function load() {
   try {
-    const d = JSON.parse(localStorage.getItem(SK)) || {tx:[],cig:[],debts:[]};
-    d.tx = d.tx || []; d.cig = d.cig || []; d.debts = d.debts || [];
+    const d = JSON.parse(localStorage.getItem(SK)) || {debts:[]};
+    d.debts = d.debts || [];
     return d;
-  } catch { return {tx:[],cig:[],debts:[]}; }
+  } catch { return {debts:[]}; }
 }
 function save(d) { localStorage.setItem(SK, JSON.stringify(d)); }
 
-function switchTab(t) {
-  document.getElementById('pCash').classList.toggle('on', t==='cash');
-  document.getElementById('pCig').classList.toggle('on', t==='cig');
-  document.getElementById('pDebt').classList.toggle('on', t==='debt');
-  document.getElementById('tabC').className = 'tab' + (t==='cash'?' tc':'');
-  document.getElementById('tabG').className = 'tab' + (t==='cig'?' tp':'');
-  document.getElementById('tabD').className = 'tab' + (t==='debt'?' td':'');
-}
-
-function setType(t) {
-  ctype = t;
-  document.getElementById('btnInc').classList.toggle('on', t==='income');
-  document.getElementById('btnExp').classList.toggle('on', t==='expense');
-  const b = document.getElementById('subBtn');
-  b.className = 'bsub ' + (t==='income'?'bim':'bem');
-  b.textContent = t==='income' ? '✓ إضافة وارد' : '✓ إضافة صادر';
-}
+function fmt(n) { return n.toLocaleString('ar-JO',{minimumFractionDigits:3,maximumFractionDigits:3}); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function setDType(t) {
   dtype = t;
@@ -384,54 +223,43 @@ function setDType(t) {
   b.textContent = t==='lent' ? '✓ تسجيل دين (زبون)' : '✓ تسجيل دين (علينا)';
 }
 
-function updCalc() {
-  const idx = parseInt(document.getElementById('cigType').value);
-  const qty = parseInt(document.getElementById('cigSold').value) || 0;
-  if (isNaN(idx)) { document.getElementById('calcVal').textContent='0.000 د.أ'; return; }
-  document.getElementById('calcVal').textContent = fmt(PRICES[idx]*qty) + ' د.أ';
-}
-
-function addTx() {
-  const desc = document.getElementById('descInp').value.trim();
-  const amt  = parseFloat(document.getElementById('amtInp').value);
-  if (!desc) { toast('✏️ أدخل البيان أولاً'); return; }
-  if (isNaN(amt)||amt<=0) { toast('💰 أدخل مبلغاً صحيحاً'); return; }
-  const d=load(), now=new Date();
-  d.tx.unshift({id:Date.now(),type:ctype,desc,amount:amt,date:now.toLocaleDateString('ar-JO'),time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
-  save(d);
-  document.getElementById('descInp').value='';
-  document.getElementById('amtInp').value='';
-  render();
-  toast(ctype==='income'?'✅ تم إضافة الوارد':'✅ تم إضافة الصادر');
-}
-
-function addCig() {
-  const idx    = parseInt(document.getElementById('cigType').value);
-  const stock  = parseInt(document.getElementById('cigStock').value)  || 0;
-  const sold   = parseInt(document.getElementById('cigSold').value)   || 0;
-  const unsold = parseInt(document.getElementById('cigUnsold').value) || 0;
-  if (isNaN(idx)||document.getElementById('cigType').value==='') { toast('🚬 اختر نوع الدخان'); return; }
-  if (sold===0&&unsold===0) { toast('📦 أدخل عدد الباكيتات'); return; }
-  const now=new Date(), d=load();
-  if (sold>0) {
-    d.tx.unshift({id:Date.now(),type:'expense',isCig:true,
-      desc:'🚬 صادر دخان — '+NAMES[idx]+' ('+sold+' باكيت)',
-      amount:PRICES[idx]*sold,
-      date:now.toLocaleDateString('ar-JO'),
-      time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
+async function pickContact() {
+  if (!('contacts' in navigator) || !('ContactsManager' in window)) {
+    toast('📵 هالميزة تشتغل بس على كروم أندرويد');
+    return;
   }
-  d.cig.unshift({id:Date.now()+1,ci:idx,stock,sold,unsold,price:PRICES[idx],
-    tsold:PRICES[idx]*sold,tunsold:PRICES[idx]*unsold,
-    date:now.toLocaleDateString('ar-JO'),
-    time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
-  save(d);
-  document.getElementById('cigType').value='';
-  document.getElementById('cigStock').value='';
-  document.getElementById('cigSold').value='';
-  document.getElementById('cigUnsold').value='';
-  document.getElementById('calcVal').textContent='0.000 د.أ';
-  render();
-  toast('✅ تم تسجيل صادر الدخان');
+  try {
+    const contacts = await navigator.contacts.select(['name','tel'], {multiple:false});
+    if (contacts && contacts.length) {
+      const c = contacts[0];
+      if (c.name && c.name[0]) document.getElementById('debtName').value = c.name[0];
+      if (c.tel && c.tel[0]) document.getElementById('debtPhone').value = c.tel[0];
+      toast('✅ تم جلب بيانات الزبون');
+    }
+  } catch (err) {
+    toast('⚠️ ما قدرنا نفتح جهات الاتصال');
+  }
+}
+
+function cleanPhone(phone) {
+  let p = (phone||'').replace(/[^\d]/g,'');
+  if (!p) return '';
+  if (p.startsWith('00')) p = p.slice(2);
+  if (p.startsWith('0')) p = '962'+p.slice(1);
+  else if (!p.startsWith('962')) p = '962'+p;
+  return p;
+}
+
+function buildReminderMsg(name, items) {
+  const total = items.reduce((s,x)=>s+x.amount,0);
+  const lines = items.map(x=>'- '+(x.desc||'دين')+': '+fmt(x.amount)+' د.أ ('+x.date+')').join('\n');
+  return `مرحباً ${name}، عندك دين مسجل عند محلنا:\n${lines}\n\nالمجموع الكلي: ${fmt(total)} د.أ\nنرجو التكرم بالتسديد بأقرب وقت ممكن. شكراً لتفهمك 🙏`;
+}
+
+function waLinkFor(phone, msg) {
+  const p = cleanPhone(phone);
+  if (!p) return '#';
+  return `https://wa.me/${p}?text=${encodeURIComponent(msg)}`;
 }
 
 function addDebt() {
@@ -451,17 +279,17 @@ function addDebt() {
   document.getElementById('debtDesc').value='';
   document.getElementById('debtAmt').value='';
   render();
-  toast('✅ تم تسجيل الدين');
-}
 
-function waLink(phone, name, amount) {
-  let p = (phone||'').replace(/[^\d]/g,'');
-  if (!p) return '';
-  if (p.startsWith('00')) p = p.slice(2);
-  if (p.startsWith('0')) p = '962'+p.slice(1);
-  else if (!p.startsWith('962')) p = '962'+p;
-  const msg = encodeURIComponent(`مرحباً ${name}، تذكير بخصوص دين بقيمة ${fmt(amount)} د.أ. نرجو التكرم بالتسديد بأقرب وقت ممكن. شكراً لتفهمك 🙏`);
-  return `https://wa.me/${p}?text=${msg}`;
+  if (dtype==='lent' && phone) {
+    const pClean = cleanPhone(phone);
+    const mine = load().debts.filter(x=>x.type==='lent' && !x.paid && x.phone && cleanPhone(x.phone)===pClean);
+    if (mine.length) {
+      window.open(waLinkFor(phone, buildReminderMsg(name, mine)), '_blank');
+      toast('✅ تم تسجيل الدين وفتح واتساب');
+      return;
+    }
+  }
+  toast('✅ تم تسجيل الدين');
 }
 
 function payDebt(id) {
@@ -475,105 +303,82 @@ function payDebt(id) {
     deb2.paid = true;
     const now=new Date();
     deb2.paidDate = now.toLocaleDateString('ar-JO');
-    d2.tx.unshift({id:Date.now(),type: deb2.type==='lent' ? 'income':'expense',
-      desc:(deb2.type==='lent'?'💳 تسديد دين — ':'💳 سداد دين — ')+deb2.name,
-      amount:deb2.amount,
-      date:now.toLocaleDateString('ar-JO'),
-      time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
     save(d2); render();
-    toast('✅ تم التسديد وتسجيله بالكاش');
+    toast('✅ تم تسديد الدين');
   });
 }
 
 function delDebt(id) {
-  openMo('🗑️','حذف الدين','هل تريد حذف سجل هذا الدين؟',()=>{
+  openMo('🗑️','حذف الدين','هل تريد حذف سجل هذا الدين بس؟ باقي ديون الزبون رح تضل موجودة.',()=>{
     const d=load();
     d.debts=d.debts.filter(x=>x.id!==id);
     save(d); render(); toast('🗑 تم الحذف');
   });
 }
 
-function delTx(id) {
-  openMo('🗑️','حذف العملية','هل تريد حذف هذه العملية؟',()=>{
-    const d=load();
-    d.tx=d.tx.filter(t=>t.id!==id);
-    d.cig=d.cig.filter(t=>t.id!==id);
-    save(d); render(); toast('🗑 تم الحذف');
-  });
+function sendReminder(phone, name, items) {
+  window.open(waLinkFor(phone, buildReminderMsg(name, items)), '_blank');
 }
 
-function confirmReset() {
-  const d=load();
-  if (!d.tx.length&&!d.cig.length&&!d.debts.length) { toast('📭 لا توجد بيانات'); return; }
-  openMo('⚠️','تصفير الكل','هل تريد حذف جميع البيانات؟ لا يمكن التراجع.',()=>{
-    save({tx:[],cig:[],debts:[]}); render(); toast('🧹 تم التصفير');
+function groupDebts(debts) {
+  const groups = {};
+  const order = [];
+  debts.forEach(x=>{
+    const key = x.type + '|' + (x.phone ? cleanPhone(x.phone) : ('n:'+x.name.trim().toLowerCase()));
+    if (!groups[key]) { groups[key] = {type:x.type, name:x.name, phone:x.phone, items:[]}; order.push(key); }
+    groups[key].items.push(x);
+    if (x.phone) groups[key].phone = x.phone;
+    groups[key].name = x.name || groups[key].name;
   });
+  return order.map(k=>groups[k]);
 }
-
-function fmt(n) { return n.toLocaleString('ar-JO',{minimumFractionDigits:3,maximumFractionDigits:3}); }
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function render() {
-  const d=load(), txs=d.tx, cigs=d.cig, debts=d.debts;
-  let inc=0,exp=0;
-  txs.forEach(t=>{ if(t.type==='income') inc+=t.amount; else exp+=t.amount; });
-  const net=inc-exp;
-  document.getElementById('totalIncome').innerHTML=`<span class="cur">د.أ</span>${fmt(inc)}`;
-  document.getElementById('totalExpense').innerHTML=`<span class="cur">د.أ</span>${fmt(exp)}`;
-  const ne=document.getElementById('netCash');
-  ne.innerHTML=`<span class="cur">د.أ</span>${fmt(Math.abs(net))}`;
-  ne.className='val '+(net>0?'pos':net<0?'neg':'zero');
-
-  let cs=0,cu=0;
-  cigs.forEach(c=>{ cs+=c.tsold; cu+=c.tunsold; });
-  document.getElementById('cigSoldVal').innerHTML=`<span class="cur">د.أ</span>${fmt(cs)}`;
-  document.getElementById('cigStockVal').innerHTML=`<span class="cur">د.أ</span>${fmt(cu)}`;
-
-  const agg=NAMES.map((_,i)=>({n:NAMES[i],p:PRICES[i],k:0,s:0,u:0}));
-  cigs.forEach(c=>{ agg[c.ci].k+=c.stock||0; agg[c.ci].s+=c.sold; agg[c.ci].u+=c.unsold; });
-  let ts=0,tu=0,tk=0,tsv=0;
-  document.getElementById('cigTbody').innerHTML=agg.map(r=>{
-    const sv=r.s*r.p; ts+=r.s;tu+=r.u;tk+=r.k;tsv+=sv;
-    return `<tr><td>${r.n}</td><td style="color:var(--dim)">${r.p.toFixed(3)}</td><td style="color:var(--blue);font-family:'Tajawal';font-weight:700">${r.k}</td><td class="sv">${r.s}</td><td class="uv">${r.u}</td><td class="sv">${fmt(sv)}</td></tr>`;
-  }).join('');
-  document.getElementById('cigTfoot').innerHTML=`<tr><td colspan="2" style="color:var(--gold)">المجموع</td><td style="color:var(--blue);font-family:'Tajawal';font-weight:800">${tk}</td><td class="sv">${ts}</td><td class="uv">${tu}</td><td class="tv">${fmt(tsv)}</td></tr>`;
-
+  const d=load(), debts=d.debts;
   let owedToUs=0, owedByUs=0;
   debts.forEach(x=>{ if(!x.paid){ if(x.type==='lent') owedToUs+=x.amount; else owedByUs+=x.amount; } });
   document.getElementById('debtToUs').innerHTML=`<span class="cur">د.أ</span>${fmt(owedToUs)}`;
   document.getElementById('debtByUs').innerHTML=`<span class="cur">د.أ</span>${fmt(owedByUs)}`;
-  document.getElementById('debtCnt').textContent=debts.length;
-  const dlist=document.getElementById('debtList');
-  if (!debts.length) {
-    dlist.innerHTML='<li class="empty"><div class="ei">💳</div><p>لا توجد ديون مسجلة</p></li>';
-  } else {
-    dlist.innerHTML=debts.map(x=>{
-      const wa = (!x.paid && x.type==='lent' && x.phone) ? `<a class="bwa" title="تذكير واتساب" href="${waLink(x.phone,x.name,x.amount)}" target="_blank" rel="noopener">📱</a>` : '';
-      const payBtn = !x.paid ? `<button class="bpay" title="تسديد" onclick="payDebt(${x.id})">✓</button>` : '';
-      return `
-    <li class="txi">
-      <div class="txic ${x.type==='lent'?'income':'expense'}">${x.type==='lent'?'👤':'🏪'}</div>
-      <div class="txin">
-        <div class="txd">${esc(x.name)}${x.desc?' — '+esc(x.desc):''}<span class="dstat ${x.paid?'paid':'unpaid'}">${x.paid?'(مسدد)':'(غير مسدد)'}</span></div>
-        <div class="txtime">${x.date} — ${x.time}</div>
-      </div>
-      <div class="txa ${x.type==='lent'?'income':'expense'}">${x.type==='lent'?'+':'-'}${fmt(x.amount)}</div>
-      ${payBtn}${wa}
-      <button class="bdel" onclick="delDebt(${x.id})">✕</button>
-    </li>`;
-    }).join('');
-  }
 
-  document.getElementById('txCnt').textContent=txs.length;
-  const list=document.getElementById('txList');
-  if (!txs.length) { list.innerHTML='<li class="empty"><div class="ei">🧾</div><p>لا توجد عمليات بعد</p></li>'; return; }
-  list.innerHTML=txs.map(t=>`
-    <li class="txi">
-      <div class="txic ${t.isCig?'cig':t.type}">${t.isCig?'🚬':t.type==='income'?'▲':'▼'}</div>
-      <div class="txin"><div class="txd">${esc(t.desc)}</div><div class="txtime">${t.date} — ${t.time}</div></div>
-      <div class="txa ${t.isCig?'cig':t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
-      <button class="bdel" onclick="delTx(${t.id})">✕</button>
-    </li>`).join('');
+  const q = (document.getElementById('searchInp').value||'').trim().toLowerCase();
+  let groups = groupDebts(debts);
+  if (q) groups = groups.filter(g=>g.name.toLowerCase().includes(q));
+  document.getElementById('custCnt').textContent = groups.length;
+
+  const wrap = document.getElementById('debtGroups');
+  if (!groups.length) {
+    wrap.innerHTML = '<li class="empty"><div class="ei">💳</div><p>لا توجد ديون مسجلة</p></li>';
+    return;
+  }
+  wrap.innerHTML = groups.map(g=>{
+    const unpaid = g.items.filter(x=>!x.paid);
+    const paid = g.items.filter(x=>x.paid);
+    const total = unpaid.reduce((s,x)=>s+x.amount,0);
+    const waBtn = (g.type==='lent' && g.phone && unpaid.length)
+      ? `<button class="bwa" title="إرسال تذكير الآن" onclick='sendReminder(${JSON.stringify(g.phone)}, ${JSON.stringify(g.name)}, ${JSON.stringify(unpaid)})'>📱</button>` : '';
+    const itemsHtml = unpaid.map(x=>`
+      <div class="ditem">
+        <div class="dd">${esc(x.desc||'دين')}<div class="dt">${x.date} — ${x.time}</div></div>
+        <div class="da ${g.type}">${fmt(x.amount)}</div>
+        <button class="bpay" title="تسديد" onclick="payDebt(${x.id})">✓</button>
+        <button class="bdel" title="حذف" onclick="delDebt(${x.id})">✕</button>
+      </div>`).join('');
+    const paidHtml = paid.length ? `<div class="paidnote">✅ ${paid.length} دين مسدد سابقاً بقيمة ${fmt(paid.reduce((s,x)=>s+x.amount,0))} د.أ</div>` : '';
+    return `
+    <li class="gcard">
+      <div class="ghead">
+        <div class="gic ${g.type}">${g.type==='lent'?'👤':'🏪'}</div>
+        <div class="gin">
+          <div class="gname">${esc(g.name)}</div>
+          <div class="gsub">${unpaid.length ? unpaid.length+' دين غير مسدد' : 'كل الديون مسددة'}</div>
+        </div>
+        <div class="gtotal ${g.type}">${fmt(total)}</div>
+        ${waBtn}
+      </div>
+      ${itemsHtml}
+      ${paidHtml}
+    </li>`;
+  }).join('');
 }
 
 function openMo(icon,title,msg,cb) {
@@ -594,7 +399,6 @@ function toast(msg) {
   clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('show'),2200);
 }
 
-['descInp','amtInp'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') addTx(); }));
 ['debtName','debtPhone','debtDesc','debtAmt'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') addDebt(); }));
 
 render();
