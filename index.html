@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0f1117">
+<meta name="theme-color" content="#0b0d12">
 <title>سجل الديون</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
@@ -13,44 +13,47 @@
   --bg:#0b0d12; --surface:#13161f; --surface2:#1a1e2b; --border:#252a3a;
   --green:#00d97e; --red:#ff4d6d; --gold:#f5c842; --blue:#3d8bff; --purple:#a855f7;
   --text:#e8eaf0; --muted:#636b85; --dim:#8b92a8;
-  --glow-g:0 0 24px rgba(0,217,126,0.25); --glow-r:0 0 24px rgba(255,77,109,0.25);
   --r:16px; --rs:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Cairo','Tajawal',sans-serif;min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(245,200,66,0.06),transparent 60%),radial-gradient(ellipse 50% 50% at 10% 80%,rgba(61,139,255,0.05),transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px);pointer-events:none;z-index:0;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 10%,rgba(61,139,255,0.06),transparent 60%),radial-gradient(ellipse 50% 50% at 10% 80%,rgba(168,85,247,0.05),transparent 60%);pointer-events:none;z-index:0;}
 .wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:20px 16px 80px;}
 
-.backlink{display:inline-flex;align-items:center;gap:6px;color:var(--dim);font-size:13px;font-weight:600;text-decoration:none;margin-bottom:14px;}
-.backlink:hover{color:var(--text);}
-
-.header{text-align:center;padding:6px 0 22px;}
-.hicon{width:58px;height:58px;background:linear-gradient(135deg,#2a2410,#1f1a0f);border:1.5px solid rgba(245,200,66,0.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px;box-shadow:0 0 24px rgba(245,200,66,0.2);}
+.header{text-align:center;padding:6px 0 20px;}
+.hicon{width:56px;height:56px;background:linear-gradient(135deg,#1a1e2b,#12141c);border:1.5px solid rgba(61,139,255,0.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;box-shadow:0 0 24px rgba(61,139,255,0.2);}
 .header h1{font-family:'Tajawal';font-size:22px;font-weight:800;background:linear-gradient(135deg,#fff 30%,#a0a8c0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .header p{font-size:12px;color:var(--muted);margin-top:3px;font-weight:300;}
 
-.dash{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px 17px;}
-.card-label{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
-.dot{width:6px;height:6px;border-radius:50%;}
-.ci .dot{background:var(--green);box-shadow:0 0 8px var(--green);}
-.ce .dot{background:var(--red);box-shadow:0 0 8px var(--red);}
-.val{font-family:'Tajawal';font-size:19px;font-weight:800;direction:ltr;text-align:right;}
-.ci .val{color:var(--green);}
-.ce .val{color:var(--red);}
-.cur{font-size:0.6em;opacity:0.7;margin-right:2px;}
+.kdash{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 14px;text-align:center;}
+.kicon{font-size:22px;margin-bottom:8px;}
+.kval{font-family:'Tajawal';font-size:22px;font-weight:800;direction:ltr;}
+.kval.c-blue{color:var(--blue);}
+.kval.c-gold{color:var(--gold);}
+.kval.c-green{color:var(--green);}
+.kval.c-text{color:var(--text);}
+.klabel{font-size:11.5px;color:var(--muted);margin-top:5px;font-weight:500;}
 
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;}
-.ptitle{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:15px;display:flex;align-items:center;gap:7px;}
+.perf{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.perf-title{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:12px;}
+.perf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.perf-item{text-align:center;padding:10px 6px;}
+.perf-icon{font-size:18px;margin-bottom:4px;}
+.perf-val{font-family:'Tajawal';font-size:18px;font-weight:800;color:var(--blue);direction:ltr;}
+.perf-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.ptitle{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
 
 .trow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
 .tbtn{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 8px;cursor:pointer;font-family:'Cairo';font-size:13px;font-weight:600;color:var(--dim);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.tbtn.inc.on{background:rgba(0,217,126,0.1);border-color:var(--green);color:var(--green);box-shadow:var(--glow-g);}
-.tbtn.exp.on{background:rgba(255,77,109,0.1);border-color:var(--red);color:var(--red);box-shadow:var(--glow-r);}
+.tbtn.inc.on{background:rgba(0,217,126,0.1);border-color:var(--green);color:var(--green);}
+.tbtn.exp.on{background:rgba(255,77,109,0.1);border-color:var(--red);color:var(--red);}
 
 .ig{margin-bottom:11px;}
 .ig label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;}
-.ifield{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 14px;color:var(--text);font-family:'Cairo';font-size:15px;font-weight:500;outline:none;transition:border-color 0.2s,box-shadow 0.2s;direction:rtl;}
+.ifield{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:11px 14px;color:var(--text);font-family:'Cairo';font-size:15px;font-weight:500;outline:none;transition:border-color 0.2s;direction:rtl;}
 .ifield::placeholder{color:var(--muted);font-weight:300;}
 .ifield:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(61,139,255,0.1);}
 input[type=number].ifield{direction:ltr;text-align:right;}
@@ -62,43 +65,39 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 
 .bsub{width:100%;padding:13px;border:none;border-radius:var(--rs);font-family:'Cairo';font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;}
 .bsub:active{transform:scale(0.98);}
-.bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;box-shadow:var(--glow-g);}
-.bem{background:linear-gradient(135deg,#ff4d6d,#d93354);color:#1a0008;box-shadow:var(--glow-r);}
+.bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;}
+.bem{background:linear-gradient(135deg,#ff4d6d,#d93354);color:#1a0008;}
 
-.searchbar{margin-bottom:12px;}
+.actitle{font-size:15px;font-weight:800;margin-bottom:12px;}
+.pills{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
+.pill{flex-shrink:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:8px 16px;font-family:'Cairo';font-size:12.5px;font-weight:700;color:var(--dim);cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.pill.on{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 0 16px rgba(61,139,255,0.35);}
 
-.txp{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
-.txh{padding:13px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
-.txt{font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:7px;}
-.txc{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;color:var(--dim);}
+.searchbar{margin-bottom:14px;}
 
-.glist{list-style:none;}
-.gcard{border-bottom:1px solid var(--border);}
-.gcard:last-child{border-bottom:none;}
-.ghead{display:flex;align-items:center;gap:10px;padding:13px 17px;background:rgba(255,255,255,0.015);}
-.gic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.gic.lent{background:rgba(0,217,126,0.1);}
-.gic.borrowed{background:rgba(255,77,109,0.1);}
-.gin{flex:1;min-width:0;}
-.gname{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.gsub{font-size:11px;color:var(--muted);margin-top:1px;}
-.gtotal{font-family:'Tajawal';font-size:16px;font-weight:800;direction:ltr;flex-shrink:0;}
-.gtotal.lent{color:var(--green);}
-.gtotal.borrowed{color:var(--red);}
-.bwa{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;border-radius:8px;font-size:15px;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
-.bwa:hover{background:rgba(0,217,126,0.12);color:var(--green);}
-
-.ditem{display:flex;align-items:center;gap:8px;padding:10px 17px 10px 17px;padding-right:56px;border-top:1px dashed rgba(255,255,255,0.04);}
-.ditem .dd{flex:1;min-width:0;font-size:12.5px;font-weight:500;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ditem .dt{font-size:10.5px;color:var(--muted);margin-top:1px;direction:ltr;text-align:right;}
-.ditem .da{font-family:'Tajawal';font-size:13px;font-weight:700;direction:ltr;flex-shrink:0;}
-.ditem .da.lent{color:var(--green);}
-.ditem .da.borrowed{color:var(--red);}
-.bpay{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:6px;font-size:12px;flex-shrink:0;}
-.bpay:hover{background:rgba(0,217,126,0.1);color:var(--green);}
-.bdel{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:6px;font-size:12px;flex-shrink:0;}
-.bdel:hover{background:rgba(255,77,109,0.1);color:var(--red);}
-.paidnote{padding:6px 17px 10px 56px;font-size:11px;color:var(--muted);}
+.actlist{list-style:none;}
+.actcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;margin-bottom:10px;}
+.acttop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.actamt{font-family:'Tajawal';font-size:20px;font-weight:800;direction:ltr;flex-shrink:0;}
+.actamt.green{color:var(--green);}
+.actamt.red{color:var(--red);}
+.actwho{display:flex;align-items:center;gap:8px;flex:1;min-width:0;justify-content:flex-end;}
+.actavatar{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.actname{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.acttag{font-size:10px;font-weight:700;border-radius:20px;padding:2px 9px;flex-shrink:0;}
+.acttag.lent{background:rgba(0,217,126,0.12);color:var(--green);}
+.acttag.borrowed{background:rgba(255,77,109,0.12);color:var(--red);}
+.actrow2{display:flex;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap;}
+.actbadge{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:5px 12px;font-size:12px;font-weight:600;color:var(--dim);}
+.actquick{background:rgba(61,139,255,0.1);border:1px solid rgba(61,139,255,0.3);border-radius:var(--rs);padding:5px 12px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;}
+.actmeta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);direction:ltr;margin-bottom:8px;}
+.actactions{display:flex;gap:8px;border-top:1px solid var(--border);padding-top:9px;}
+.aabtn{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none;color:var(--dim);}
+.aabtn.pay{color:var(--green);}
+.aabtn.pay:hover{background:rgba(0,217,126,0.1);border-color:var(--green);}
+.aabtn.wa:hover{background:rgba(0,217,126,0.1);border-color:var(--green);color:var(--green);}
+.aabtn.del:hover{background:rgba(255,77,109,0.1);border-color:var(--red);color:var(--red);}
+.paidstamp{font-size:11px;color:var(--green);font-weight:600;}
 
 .empty{text-align:center;padding:40px 24px;color:var(--muted);}
 .empty .ei{font-size:36px;margin-bottom:10px;opacity:0.4;}
@@ -122,24 +121,54 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 <body>
 <div class="wrap">
 
-
   <div class="header">
     <div class="hicon">💳</div>
     <h1>سجل الديون</h1>
-    <p>تجميع حسب الزبون — تذكير واتساب تلقائي</p>
+    <p>لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
   </div>
 
-  <div class="dash">
-    <div class="card ci">
-      <div class="card-label"><span class="dot"></span>ديون لنا (عند الزبائن)</div>
-      <div class="val" id="debtToUs"><span class="cur">د.أ</span>0.000</div>
+  <!-- KPI dashboard -->
+  <div class="kdash">
+    <div class="kcard">
+      <div class="kicon">💼</div>
+      <div class="kval c-blue" id="kTotalDebt">JD 0.00</div>
+      <div class="klabel">مجموع الدين</div>
     </div>
-    <div class="card ce">
-      <div class="card-label"><span class="dot"></span>ديون علينا (لحدا تاني)</div>
-      <div class="val" id="debtByUs"><span class="cur">د.أ</span>0.000</div>
+    <div class="kcard">
+      <div class="kicon">👥</div>
+      <div class="kval c-text" id="kCustomers">0</div>
+      <div class="klabel">إجمالي الزبائن</div>
+    </div>
+    <div class="kcard">
+      <div class="kicon">✅</div>
+      <div class="kval c-green" id="kCollected">JD 0.00</div>
+      <div class="klabel">المحصل هذا الشهر</div>
+    </div>
+    <div class="kcard">
+      <div class="kicon">↗️</div>
+      <div class="kval c-gold" id="kAdded">JD 0.00</div>
+      <div class="klabel">المضاف هذا الشهر</div>
     </div>
   </div>
 
+  <!-- مؤشرات الأداء -->
+  <div class="perf">
+    <div class="perf-title">مؤشرات الأداء</div>
+    <div class="perf-row">
+      <div class="perf-item">
+        <div class="perf-icon">🏛️</div>
+        <div class="perf-val" id="pNet">JD 0.00</div>
+        <div class="perf-lbl">المركز الصافي</div>
+      </div>
+      <div class="perf-item">
+        <div class="perf-icon">↩️</div>
+        <div class="perf-val" id="pAvg">JD 0.00</div>
+        <div class="perf-lbl">متوسط لكل زبون</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- تسجيل دين -->
   <div class="panel">
     <div class="ptitle">💳 تسجيل دين جديد</div>
     <div class="trow">
@@ -168,18 +197,19 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <button class="bsub bim" id="debtSubBtn" onclick="addDebt()">✓ تسجيل الدين</button>
   </div>
 
+  <!-- سجل النشاط -->
+  <div class="actitle">📋 سجل النشاط</div>
   <div class="ig searchbar">
     <input class="ifield" type="text" id="searchInp" placeholder="🔍 دوّر باسم الزبون..." oninput="render()">
   </div>
-
-  <div class="txp">
-    <div class="txh">
-      <div class="txt">📋 الزبائن <span class="txc" id="custCnt">0</span></div>
-    </div>
-    <ul class="glist" id="debtGroups">
-      <li class="empty"><div class="ei">💳</div><p>لا توجد ديون مسجلة</p></li>
-    </ul>
+  <div class="pills">
+    <div class="pill on" id="pillAll" onclick="setFilter('all')">كل النشاطات</div>
+    <div class="pill" id="pillAdd" onclick="setFilter('add')">ديون جديدة</div>
+    <div class="pill" id="pillPay" onclick="setFilter('pay')">تسديدات</div>
   </div>
+  <ul class="actlist" id="actList">
+    <li class="empty"><div class="ei">🧾</div><p>لا يوجد نشاط بعد</p></li>
+  </ul>
 
 </div>
 
@@ -200,18 +230,32 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 
 <script>
 const SK = 'cash_store_v2';
-let dtype = 'lent', pending = null;
+let dtype = 'lent', pending = null, activeFilter = 'all';
 
 function load() {
   try {
-    const d = JSON.parse(localStorage.getItem(SK)) || {debts:[]};
-    d.debts = d.debts || [];
+    const d = JSON.parse(localStorage.getItem(SK)) || {debts:[],log:[]};
+    d.debts = d.debts || []; d.log = d.log || [];
+    if (!d._migrated && d.debts.length && !d.log.length) {
+      d.debts.forEach(x=>{
+        const addTs = x.ts || Date.now();
+        d.log.push({id:x.id, action:'add', debtId:x.id, name:x.name, phone:x.phone, type:x.type, desc:x.desc, amount:x.amount, ts:addTs, date:x.date, time:x.time});
+        if (x.paid) {
+          const payTs = x.paidTs || addTs;
+          d.log.push({id:x.id+1, action:'pay', debtId:x.id, name:x.name, phone:x.phone, type:x.type, desc:x.desc, amount:x.amount, ts:payTs, date:x.paidDate||x.date, time:x.time});
+        }
+      });
+      d.log.sort((a,b)=>b.ts-a.ts);
+      d._migrated = true;
+      localStorage.setItem(SK, JSON.stringify(d));
+    }
     return d;
-  } catch { return {debts:[]}; }
+  } catch { return {debts:[],log:[]}; }
 }
 function save(d) { localStorage.setItem(SK, JSON.stringify(d)); }
 
-function fmt(n) { return n.toLocaleString('ar-JO',{minimumFractionDigits:3,maximumFractionDigits:3}); }
+function fmt(n) { return 'JD ' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtJD(n) { return n.toLocaleString('ar-JO',{minimumFractionDigits:3,maximumFractionDigits:3}); }
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function setDType(t) {
@@ -221,6 +265,14 @@ function setDType(t) {
   const b = document.getElementById('debtSubBtn');
   b.className = 'bsub ' + (t==='lent'?'bim':'bem');
   b.textContent = t==='lent' ? '✓ تسجيل دين (زبون)' : '✓ تسجيل دين (علينا)';
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  document.getElementById('pillAll').classList.toggle('on', f==='all');
+  document.getElementById('pillAdd').classList.toggle('on', f==='add');
+  document.getElementById('pillPay').classList.toggle('on', f==='pay');
+  render();
 }
 
 async function pickContact() {
@@ -252,14 +304,21 @@ function cleanPhone(phone) {
 
 function buildReminderMsg(name, items) {
   const total = items.reduce((s,x)=>s+x.amount,0);
-  const lines = items.map(x=>'- '+(x.desc||'دين')+': '+fmt(x.amount)+' د.أ ('+x.date+')').join('\n');
-  return `مرحباً ${name}، عندك دين مسجل عند محلنا:\n${lines}\n\nالمجموع الكلي: ${fmt(total)} د.أ\nنرجو التكرم بالتسديد بأقرب وقت ممكن. شكراً لتفهمك 🙏`;
+  const lines = items.map(x=>'- '+(x.desc||'دين')+': '+fmtJD(x.amount)+' د.أ ('+x.date+')').join('\n');
+  return `مرحباً ${name}، عندك دين مسجل عند محلنا:\n${lines}\n\nالمجموع الكلي: ${fmtJD(total)} د.أ\nنرجو التكرم بالتسديد بأقرب وقت ممكن. شكراً لتفهمك 🙏`;
 }
-
 function waLinkFor(phone, msg) {
   const p = cleanPhone(phone);
   if (!p) return '#';
   return `https://wa.me/${p}?text=${encodeURIComponent(msg)}`;
+}
+function sendReminderFor(phone, name, unpaidItems) {
+  window.open(waLinkFor(phone, buildReminderMsg(name, unpaidItems)), '_blank');
+}
+
+function unpaidOf(phoneOrName, isPhone) {
+  const d = load();
+  return d.debts.filter(x=>x.type==='lent' && !x.paid && (isPhone ? (x.phone && cleanPhone(x.phone)===phoneOrName) : (!x.phone && x.name.trim().toLowerCase()===phoneOrName)));
 }
 
 function addDebt() {
@@ -270,9 +329,10 @@ function addDebt() {
   if (!name) { toast('✏️ أدخل اسم الشخص'); return; }
   if (isNaN(amt)||amt<=0) { toast('💰 أدخل مبلغاً صحيحاً'); return; }
   const d=load(), now=new Date();
-  d.debts.unshift({id:Date.now(),type:dtype,name,phone,desc,amount:amt,paid:false,
-    date:now.toLocaleDateString('ar-JO'),
-    time:now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'})});
+  const dateStr = now.toLocaleDateString('ar-JO'), timeStr = now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
+  const debtId = Date.now();
+  d.debts.unshift({id:debtId,type:dtype,name,phone,desc,amount:amt,paid:false,ts:now.getTime(),date:dateStr,time:timeStr});
+  d.log.unshift({id:debtId+1,action:'add',debtId,name,phone,type:dtype,desc,amount:amt,ts:now.getTime(),date:dateStr,time:timeStr});
   save(d);
   document.getElementById('debtName').value='';
   document.getElementById('debtPhone').value='';
@@ -282,9 +342,9 @@ function addDebt() {
 
   if (dtype==='lent' && phone) {
     const pClean = cleanPhone(phone);
-    const mine = load().debts.filter(x=>x.type==='lent' && !x.paid && x.phone && cleanPhone(x.phone)===pClean);
+    const mine = unpaidOf(pClean, true);
     if (mine.length) {
-      window.open(waLinkFor(phone, buildReminderMsg(name, mine)), '_blank');
+      sendReminderFor(phone, name, mine);
       toast('✅ تم تسجيل الدين وفتح واتساب');
       return;
     }
@@ -292,17 +352,28 @@ function addDebt() {
   toast('✅ تم تسجيل الدين');
 }
 
+function quickAdd(name, phone) {
+  document.getElementById('debtName').value = name;
+  document.getElementById('debtPhone').value = phone || '';
+  setDType('lent');
+  document.getElementById('debtAmt').focus();
+  window.scrollTo({top:0, behavior:'smooth'});
+  toast('👆 عبّي المبلغ وسجّل دين جديد لـ '+name);
+}
+
 function payDebt(id) {
   const d=load();
   const deb = d.debts.find(x=>x.id===id);
   if (!deb || deb.paid) return;
-  openMo('✅','تسديد الدين','هل تم تسديد دين '+deb.name+' بقيمة '+fmt(deb.amount)+' د.أ؟',()=>{
+  openMo('✅','تسديد الدين','هل تم تسديد دين '+deb.name+' بقيمة '+fmtJD(deb.amount)+' د.أ؟',()=>{
     const d2=load();
     const deb2 = d2.debts.find(x=>x.id===id);
     if (!deb2) return;
     deb2.paid = true;
     const now=new Date();
-    deb2.paidDate = now.toLocaleDateString('ar-JO');
+    const dateStr = now.toLocaleDateString('ar-JO'), timeStr = now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
+    deb2.paidDate = dateStr; deb2.paidTs = now.getTime();
+    d2.log.unshift({id:Date.now(),action:'pay',debtId:deb2.id,name:deb2.name,phone:deb2.phone,type:deb2.type,desc:deb2.desc,amount:deb2.amount,ts:now.getTime(),date:dateStr,time:timeStr});
     save(d2); render();
     toast('✅ تم تسديد الدين');
   });
@@ -312,71 +383,84 @@ function delDebt(id) {
   openMo('🗑️','حذف الدين','هل تريد حذف سجل هذا الدين بس؟ باقي ديون الزبون رح تضل موجودة.',()=>{
     const d=load();
     d.debts=d.debts.filter(x=>x.id!==id);
+    d.log=d.log.filter(x=>x.debtId!==id);
     save(d); render(); toast('🗑 تم الحذف');
   });
 }
 
-function sendReminder(phone, name, items) {
-  window.open(waLinkFor(phone, buildReminderMsg(name, items)), '_blank');
-}
-
-function groupDebts(debts) {
-  const groups = {};
-  const order = [];
-  debts.forEach(x=>{
-    const key = x.type + '|' + (x.phone ? cleanPhone(x.phone) : ('n:'+x.name.trim().toLowerCase()));
-    if (!groups[key]) { groups[key] = {type:x.type, name:x.name, phone:x.phone, items:[]}; order.push(key); }
-    groups[key].items.push(x);
-    if (x.phone) groups[key].phone = x.phone;
-    groups[key].name = x.name || groups[key].name;
-  });
-  return order.map(k=>groups[k]);
+function isThisMonth(ts) {
+  if (!ts) return false;
+  const n = new Date(), x = new Date(ts);
+  return n.getFullYear()===x.getFullYear() && n.getMonth()===x.getMonth();
 }
 
 function render() {
-  const d=load(), debts=d.debts;
-  let owedToUs=0, owedByUs=0;
-  debts.forEach(x=>{ if(!x.paid){ if(x.type==='lent') owedToUs+=x.amount; else owedByUs+=x.amount; } });
-  document.getElementById('debtToUs').innerHTML=`<span class="cur">د.أ</span>${fmt(owedToUs)}`;
-  document.getElementById('debtByUs').innerHTML=`<span class="cur">د.أ</span>${fmt(owedByUs)}`;
+  const d = load();
+  const debts = d.debts, log = d.log;
+
+  const unpaidLent = debts.filter(x=>x.type==='lent' && !x.paid);
+  const unpaidBorrowed = debts.filter(x=>x.type==='borrowed' && !x.paid);
+  const totalDebt = unpaidLent.reduce((s,x)=>s+x.amount,0);
+  const totalBorrowed = unpaidBorrowed.reduce((s,x)=>s+x.amount,0);
+
+  const custKeys = new Set();
+  debts.filter(x=>x.type==='lent').forEach(x=>custKeys.add(x.phone?cleanPhone(x.phone):('n:'+x.name.trim().toLowerCase())));
+  const custCount = custKeys.size;
+
+  const collected = log.filter(x=>x.action==='pay' && x.type==='lent' && isThisMonth(x.ts)).reduce((s,x)=>s+x.amount,0);
+  const added = log.filter(x=>x.action==='add' && x.type==='lent' && isThisMonth(x.ts)).reduce((s,x)=>s+x.amount,0);
+
+  document.getElementById('kTotalDebt').textContent = fmt(totalDebt);
+  document.getElementById('kCustomers').textContent = custCount;
+  document.getElementById('kCollected').textContent = fmt(collected);
+  document.getElementById('kAdded').textContent = fmt(added);
+  document.getElementById('pNet').textContent = fmt(totalDebt - totalBorrowed);
+  document.getElementById('pAvg').textContent = fmt(custCount ? totalDebt/custCount : 0);
 
   const q = (document.getElementById('searchInp').value||'').trim().toLowerCase();
-  let groups = groupDebts(debts);
-  if (q) groups = groups.filter(g=>g.name.toLowerCase().includes(q));
-  document.getElementById('custCnt').textContent = groups.length;
+  let items = log.slice();
+  if (activeFilter!=='all') items = items.filter(x=>x.action===activeFilter);
+  if (q) items = items.filter(x=>x.name.toLowerCase().includes(q));
 
-  const wrap = document.getElementById('debtGroups');
-  if (!groups.length) {
-    wrap.innerHTML = '<li class="empty"><div class="ei">💳</div><p>لا توجد ديون مسجلة</p></li>';
+  const list = document.getElementById('actList');
+  if (!items.length) {
+    list.innerHTML = '<li class="empty"><div class="ei">🧾</div><p>لا يوجد نشاط مطابق</p></li>';
     return;
   }
-  wrap.innerHTML = groups.map(g=>{
-    const unpaid = g.items.filter(x=>!x.paid);
-    const paid = g.items.filter(x=>x.paid);
-    const total = unpaid.reduce((s,x)=>s+x.amount,0);
-    const waBtn = (g.type==='lent' && g.phone && unpaid.length)
-      ? `<button class="bwa" title="إرسال تذكير الآن" onclick='sendReminder(${JSON.stringify(g.phone)}, ${JSON.stringify(g.name)}, ${JSON.stringify(unpaid)})'>📱</button>` : '';
-    const itemsHtml = unpaid.map(x=>`
-      <div class="ditem">
-        <div class="dd">${esc(x.desc||'دين')}<div class="dt">${x.date} — ${x.time}</div></div>
-        <div class="da ${g.type}">${fmt(x.amount)}</div>
-        <button class="bpay" title="تسديد" onclick="payDebt(${x.id})">✓</button>
-        <button class="bdel" title="حذف" onclick="delDebt(${x.id})">✕</button>
-      </div>`).join('');
-    const paidHtml = paid.length ? `<div class="paidnote">✅ ${paid.length} دين مسدد سابقاً بقيمة ${fmt(paid.reduce((s,x)=>s+x.amount,0))} د.أ</div>` : '';
+
+  list.innerHTML = items.map(x=>{
+    const debt = debts.find(dd=>dd.id===x.debtId);
+    const isPay = x.action==='pay';
+    const color = x.type==='lent' ? 'green' : 'red';
+    const actionLabel = isPay ? (x.type==='lent' ? '💰 تسديد دين' : '💸 سداد دين') : (x.type==='lent' ? '📌 دين جديد' : '📌 دين علينا جديد');
+    const tagLabel = x.type==='lent' ? 'زبون' : 'المحل';
+    const quickBtn = (!isPay && x.type==='lent') ? `<span class="actquick" onclick="quickAdd(${JSON.stringify(x.name)}, ${JSON.stringify(x.phone||'')})">دين جديد ⊕</span>` : '';
+    let actionsHtml = '';
+    if (!isPay && debt) {
+      const waBtn = (x.type==='lent' && !debt.paid && debt.phone) ? `<a class="aabtn wa" href="${waLinkFor(debt.phone, buildReminderMsg(debt.name, unpaidOf(cleanPhone(debt.phone), true)))}" target="_blank" rel="noopener">📱 تذكير</a>` : '';
+      const payBtn = !debt.paid ? `<button class="aabtn pay" onclick="payDebt(${debt.id})">✓ تسديد</button>` : `<span class="paidstamp">✅ تم التسديد</span>`;
+      const delBtn = !debt.paid ? `<button class="aabtn del" onclick="delDebt(${debt.id})">✕ حذف</button>` : '';
+      actionsHtml = `<div class="actactions">${payBtn}${waBtn}${delBtn}</div>`;
+    }
     return `
-    <li class="gcard">
-      <div class="ghead">
-        <div class="gic ${g.type}">${g.type==='lent'?'👤':'🏪'}</div>
-        <div class="gin">
-          <div class="gname">${esc(g.name)}</div>
-          <div class="gsub">${unpaid.length ? unpaid.length+' دين غير مسدد' : 'كل الديون مسددة'}</div>
+    <li class="actcard">
+      <div class="acttop">
+        <div class="actamt ${color}">${isPay||x.type==='lent'?'+':'-'}${fmtJD(x.amount)}</div>
+        <div class="actwho">
+          <span class="actname">${esc(x.name)}</span>
+          <span class="acttag ${x.type}">${tagLabel}</span>
+          <div class="actavatar">${x.type==='lent'?'👤':'🏪'}</div>
         </div>
-        <div class="gtotal ${g.type}">${fmt(total)}</div>
-        ${waBtn}
       </div>
-      ${itemsHtml}
-      ${paidHtml}
+      <div class="actrow2">
+        <span class="actbadge">${actionLabel}</span>
+        ${quickBtn}
+      </div>
+      <div class="actmeta">
+        <span>${x.phone ? 'بواسطة: '+esc(x.phone) : 'يدوي'}</span>
+        <span>${x.date} — ${x.time}</span>
+      </div>
+      ${actionsHtml}
     </li>`;
   }).join('');
 }
