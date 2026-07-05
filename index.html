@@ -68,6 +68,39 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 .bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;}
 .bem{background:linear-gradient(135deg,#ff4d6d,#d93354);color:#1a0008;}
 
+.custlist{list-style:none;}
+.custrow{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:border-color 0.2s;}
+.custrow:active{border-color:var(--blue);}
+.custavatar{width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.custinfo{flex:1;min-width:0;}
+.custname{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.custsub{font-size:11px;color:var(--muted);margin-top:2px;}
+.custamt{font-family:'Tajawal';font-size:17px;font-weight:800;color:var(--green);direction:ltr;flex-shrink:0;}
+.custchev{color:var(--muted);font-size:16px;flex-shrink:0;}
+
+.cmoverlay{position:fixed;inset:0;background:var(--bg);z-index:150;display:none;overflow-y:auto;}
+.cmoverlay.show{display:block;}
+.cmhead{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:5;}
+.cmback{background:var(--surface2);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text);cursor:pointer;flex-shrink:0;}
+.cmtitle{flex:1;min-width:0;}
+.cmname{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cmphone{font-size:11px;color:var(--muted);direction:ltr;text-align:right;}
+.cmbody{padding:16px;max-width:660px;margin:0 auto;}
+.cmtotal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:14px;}
+.cmtotal .v{font-family:'Tajawal';font-size:30px;font-weight:800;color:var(--green);direction:ltr;}
+.cmtotal .l{font-size:12px;color:var(--muted);margin-top:4px;}
+.cmactions{display:flex;gap:8px;margin-bottom:16px;}
+.cmitem{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.cmitem .d{flex:1;min-width:0;}
+.cmitem .dd{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cmitem .dt{font-size:11px;color:var(--muted);margin-top:2px;direction:ltr;text-align:right;}
+.cmitem .da{font-family:'Tajawal';font-size:14.5px;font-weight:800;color:var(--green);direction:ltr;flex-shrink:0;}
+.cmitem.paiditem{opacity:0.5;}
+.cmitem .ib{background:none;border:none;color:var(--muted);cursor:pointer;padding:5px;border-radius:7px;font-size:13px;flex-shrink:0;}
+.cmitem .ib.pay:hover{background:rgba(0,217,126,0.1);color:var(--green);}
+.cmitem .ib.del:hover{background:rgba(255,77,109,0.1);color:var(--red);}
+.cmsectitle{font-size:12px;color:var(--muted);font-weight:600;margin:14px 0 8px;}
+
 .actitle{font-size:15px;font-weight:800;margin-bottom:12px;}
 .pills{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
 .pill{flex-shrink:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:8px 16px;font-family:'Cairo';font-size:12.5px;font-weight:700;color:var(--dim);cursor:pointer;white-space:nowrap;transition:all 0.2s;}
@@ -199,9 +232,9 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <div class="perf-title">مؤشرات الأداء</div>
     <div class="perf-row">
       <div class="perf-item">
-        <div class="perf-icon">🏛️</div>
-        <div class="perf-val" id="pNet">JD 0.00</div>
-        <div class="perf-lbl">المركز الصافي</div>
+        <div class="perf-icon">🔝</div>
+        <div class="perf-val" id="pMax">JD 0.00</div>
+        <div class="perf-lbl">أكبر دين على زبون</div>
       </div>
       <div class="perf-item">
         <div class="perf-icon">↩️</div>
@@ -214,12 +247,8 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
   <!-- تسجيل دين -->
   <div class="panel">
     <div class="ptitle">💳 تسجيل دين جديد</div>
-    <div class="trow">
-      <button class="tbtn inc on" id="btnLent" onclick="setDType('lent')">👤 زبون مدين للمحل</button>
-      <button class="tbtn exp" id="btnBorrowed" onclick="setDType('borrowed')">🏪 المحل مدين لحدا</button>
-    </div>
     <div class="ig">
-      <label>اسم الشخص</label>
+      <label>اسم الزبون</label>
       <input class="ifield" type="text" id="debtName" placeholder="مثال: أبو محمد" maxlength="50">
     </div>
     <div class="ig">
@@ -240,21 +269,41 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <button class="bsub bim" id="debtSubBtn" onclick="addDebt()">✓ تسجيل الدين</button>
   </div>
 
-  <!-- سجل النشاط -->
-  <div class="actitle">📋 سجل النشاط</div>
+  <!-- قائمة الزبائن -->
+  <div class="actitle">👥 الزبائن</div>
   <div class="ig searchbar">
     <input class="ifield" type="text" id="searchInp" placeholder="🔍 دوّر باسم الزبون..." oninput="render()">
   </div>
-  <div class="pills">
-    <div class="pill on" id="pillAll" onclick="setFilter('all')">كل النشاطات</div>
-    <div class="pill" id="pillAdd" onclick="setFilter('add')">ديون جديدة</div>
-    <div class="pill" id="pillPay" onclick="setFilter('pay')">تسديدات</div>
-  </div>
-  <ul class="actlist" id="actList">
-    <li class="empty"><div class="ei">🧾</div><p>لا يوجد نشاط بعد</p></li>
+  <ul class="custlist" id="custList">
+    <li class="empty"><div class="ei">👥</div><p>لا يوجد زبائن بعد</p></li>
   </ul>
 
 </div>
+</div>
+
+<!-- نافذة تفاصيل الزبون -->
+<div class="cmoverlay" id="custModal">
+  <div class="cmhead">
+    <div class="cmback" onclick="closeCustomer()">←</div>
+    <div class="cmtitle">
+      <div class="cmname" id="cmName"></div>
+      <div class="cmphone" id="cmPhone"></div>
+    </div>
+  </div>
+  <div class="cmbody">
+    <div class="cmtotal">
+      <div class="v" id="cmTotal">JD 0.00</div>
+      <div class="l">إجمالي الدين غير المسدد</div>
+    </div>
+    <div class="cmactions">
+      <button class="aabtn wa" id="cmWaBtn" style="flex:1;padding:11px;">📱 إرسال تذكير</button>
+      <button class="actquick" id="cmQuickBtn" style="flex:1;text-align:center;padding:11px;">دين جديد ⊕</button>
+    </div>
+    <div class="cmsectitle">الديون غير المسددة</div>
+    <div id="cmUnpaidList"></div>
+    <div class="cmsectitle" id="cmPaidTitle" style="display:none;">الديون المسددة سابقاً</div>
+    <div id="cmPaidList"></div>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -371,7 +420,7 @@ fbAuth.onAuthStateChanged(user => {
 
 <script>
 const SK = 'cash_store_v2';
-let dtype = 'lent', pending = null, activeFilter = 'all';
+let pending = null, openCustKey = null;
 
 function load() {
   try {
@@ -438,23 +487,6 @@ function fmt(n) { return 'JD ' + n.toLocaleString('en-US',{minimumFractionDigits
 function fmtJD(n) { return n.toLocaleString('ar-JO',{minimumFractionDigits:3,maximumFractionDigits:3}); }
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function setDType(t) {
-  dtype = t;
-  document.getElementById('btnLent').classList.toggle('on', t==='lent');
-  document.getElementById('btnBorrowed').classList.toggle('on', t==='borrowed');
-  const b = document.getElementById('debtSubBtn');
-  b.className = 'bsub ' + (t==='lent'?'bim':'bem');
-  b.textContent = t==='lent' ? '✓ تسجيل دين (زبون)' : '✓ تسجيل دين (علينا)';
-}
-
-function setFilter(f) {
-  activeFilter = f;
-  document.getElementById('pillAll').classList.toggle('on', f==='all');
-  document.getElementById('pillAdd').classList.toggle('on', f==='add');
-  document.getElementById('pillPay').classList.toggle('on', f==='pay');
-  render();
-}
-
 async function pickContact() {
   if (!('contacts' in navigator) || !('ContactsManager' in window)) {
     toast('📵 هالميزة تشتغل بس على كروم أندرويد');
@@ -501,18 +533,22 @@ function unpaidOf(phoneOrName, isPhone) {
   return d.debts.filter(x=>x.type==='lent' && !x.paid && (isPhone ? (x.phone && cleanPhone(x.phone)===phoneOrName) : (!x.phone && x.name.trim().toLowerCase()===phoneOrName)));
 }
 
+function custKeyOf(name, phone) {
+  return phone ? cleanPhone(phone) : ('n:'+name.trim().toLowerCase());
+}
+
 function addDebt() {
   const name  = document.getElementById('debtName').value.trim();
   const phone = document.getElementById('debtPhone').value.trim();
   const desc  = document.getElementById('debtDesc').value.trim();
   const amt   = parseFloat(document.getElementById('debtAmt').value);
-  if (!name) { toast('✏️ أدخل اسم الشخص'); return; }
+  if (!name) { toast('✏️ أدخل اسم الزبون'); return; }
   if (isNaN(amt)||amt<=0) { toast('💰 أدخل مبلغاً صحيحاً'); return; }
   const d=load(), now=new Date();
   const dateStr = now.toLocaleDateString('ar-JO'), timeStr = now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
   const debtId = Date.now();
-  d.debts.unshift({id:debtId,type:dtype,name,phone,desc,amount:amt,paid:false,ts:now.getTime(),date:dateStr,time:timeStr});
-  d.log.unshift({id:debtId+1,action:'add',debtId,name,phone,type:dtype,desc,amount:amt,ts:now.getTime(),date:dateStr,time:timeStr});
+  d.debts.unshift({id:debtId,type:'lent',name,phone,desc,amount:amt,paid:false,ts:now.getTime(),date:dateStr,time:timeStr});
+  d.log.unshift({id:debtId+1,action:'add',debtId,name,phone,type:'lent',desc,amount:amt,ts:now.getTime(),date:dateStr,time:timeStr});
   save(d);
   document.getElementById('debtName').value='';
   document.getElementById('debtPhone').value='';
@@ -520,7 +556,7 @@ function addDebt() {
   document.getElementById('debtAmt').value='';
   render();
 
-  if (dtype==='lent' && phone) {
+  if (phone) {
     const pClean = cleanPhone(phone);
     const mine = unpaidOf(pClean, true);
     if (mine.length) {
@@ -532,10 +568,10 @@ function addDebt() {
   toast('✅ تم تسجيل الدين');
 }
 
-function quickAdd(name, phone) {
+function quickAddForCustomer(name, phone) {
+  closeCustomer();
   document.getElementById('debtName').value = name;
   document.getElementById('debtPhone').value = phone || '';
-  setDType('lent');
   document.getElementById('debtAmt').focus();
   window.scrollTo({top:0, behavior:'smooth'});
   toast('👆 عبّي المبلغ وسجّل دين جديد لـ '+name);
@@ -555,6 +591,7 @@ function payDebt(id) {
     deb2.paidDate = dateStr; deb2.paidTs = now.getTime();
     d2.log.unshift({id:Date.now(),action:'pay',debtId:deb2.id,name:deb2.name,phone:deb2.phone,type:deb2.type,desc:deb2.desc,amount:deb2.amount,ts:now.getTime(),date:dateStr,time:timeStr});
     save(d2); render();
+    if (openCustKey) renderCustomerModal(openCustKey);
     toast('✅ تم تسديد الدين');
   });
 }
@@ -564,7 +601,9 @@ function delDebt(id) {
     const d=load();
     d.debts=d.debts.filter(x=>x.id!==id);
     d.log=d.log.filter(x=>x.debtId!==id);
-    save(d); render(); toast('🗑 تم الحذف');
+    save(d); render();
+    if (openCustKey) renderCustomerModal(openCustKey);
+    toast('🗑 تم الحذف');
   });
 }
 
@@ -574,18 +613,29 @@ function isThisMonth(ts) {
   return n.getFullYear()===x.getFullYear() && n.getMonth()===x.getMonth();
 }
 
+function groupByCustomer(debts) {
+  const groups = {};
+  const order = [];
+  debts.filter(x=>x.type==='lent').forEach(x=>{
+    const key = custKeyOf(x.name, x.phone);
+    if (!groups[key]) { groups[key] = {key, name:x.name, phone:x.phone, items:[]}; order.push(key); }
+    groups[key].items.push(x);
+    if (x.phone) groups[key].phone = x.phone;
+  });
+  return order.map(k=>groups[k]);
+}
+
 function render() {
   const d = load();
   const debts = d.debts, log = d.log;
 
   const unpaidLent = debts.filter(x=>x.type==='lent' && !x.paid);
-  const unpaidBorrowed = debts.filter(x=>x.type==='borrowed' && !x.paid);
   const totalDebt = unpaidLent.reduce((s,x)=>s+x.amount,0);
-  const totalBorrowed = unpaidBorrowed.reduce((s,x)=>s+x.amount,0);
 
-  const custKeys = new Set();
-  debts.filter(x=>x.type==='lent').forEach(x=>custKeys.add(x.phone?cleanPhone(x.phone):('n:'+x.name.trim().toLowerCase())));
-  const custCount = custKeys.size;
+  const groups = groupByCustomer(debts);
+  const custCount = groups.length;
+  const groupTotals = groups.map(g=>g.items.filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0));
+  const maxDebt = groupTotals.length ? Math.max(...groupTotals) : 0;
 
   const collected = log.filter(x=>x.action==='pay' && x.type==='lent' && isThisMonth(x.ts)).reduce((s,x)=>s+x.amount,0);
   const added = log.filter(x=>x.action==='add' && x.type==='lent' && isThisMonth(x.ts)).reduce((s,x)=>s+x.amount,0);
@@ -594,55 +644,80 @@ function render() {
   document.getElementById('kCustomers').textContent = custCount;
   document.getElementById('kCollected').textContent = fmt(collected);
   document.getElementById('kAdded').textContent = fmt(added);
-  document.getElementById('pNet').textContent = fmt(totalDebt - totalBorrowed);
+  document.getElementById('pMax').textContent = fmt(maxDebt);
   document.getElementById('pAvg').textContent = fmt(custCount ? totalDebt/custCount : 0);
 
   const q = (document.getElementById('searchInp').value||'').trim().toLowerCase();
-  let items = log.slice();
-  if (activeFilter!=='all') items = items.filter(x=>x.action===activeFilter);
-  if (q) items = items.filter(x=>x.name.toLowerCase().includes(q));
+  let list = groups.map(g=>({...g, total: g.items.filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0), unpaidCount: g.items.filter(x=>!x.paid).length}));
+  if (q) list = list.filter(g=>g.name.toLowerCase().includes(q));
+  list.sort((a,b)=>b.total-a.total);
 
-  const list = document.getElementById('actList');
-  if (!items.length) {
-    list.innerHTML = '<li class="empty"><div class="ei">🧾</div><p>لا يوجد نشاط مطابق</p></li>';
-    return;
+  const ul = document.getElementById('custList');
+  if (!list.length) {
+    ul.innerHTML = '<li class="empty"><div class="ei">👥</div><p>لا يوجد زبائن مطابقين</p></li>';
+  } else {
+    ul.innerHTML = list.map(g=>`
+      <li class="custrow" onclick='openCustomer(${JSON.stringify(g.key)})'>
+        <div class="custavatar">👤</div>
+        <div class="custinfo">
+          <div class="custname">${esc(g.name)}</div>
+          <div class="custsub">${g.unpaidCount ? g.unpaidCount+' دين غير مسدد' : 'كل الديون مسددة'}</div>
+        </div>
+        <div class="custamt">${fmtJD(g.total)}</div>
+        <div class="custchev">‹</div>
+      </li>`).join('');
   }
 
-  list.innerHTML = items.map(x=>{
-    const debt = debts.find(dd=>dd.id===x.debtId);
-    const isPay = x.action==='pay';
-    const color = x.type==='lent' ? 'green' : 'red';
-    const actionLabel = isPay ? (x.type==='lent' ? '💰 تسديد دين' : '💸 سداد دين') : (x.type==='lent' ? '📌 دين جديد' : '📌 دين علينا جديد');
-    const tagLabel = x.type==='lent' ? 'زبون' : 'المحل';
-    const quickBtn = (!isPay && x.type==='lent') ? `<span class="actquick" onclick="quickAdd(${JSON.stringify(x.name)}, ${JSON.stringify(x.phone||'')})">دين جديد ⊕</span>` : '';
-    let actionsHtml = '';
-    if (!isPay && debt) {
-      const waBtn = (x.type==='lent' && !debt.paid && debt.phone) ? `<a class="aabtn wa" href="${waLinkFor(debt.phone, buildReminderMsg(debt.name, unpaidOf(cleanPhone(debt.phone), true)))}" target="_blank" rel="noopener">📱 تذكير</a>` : '';
-      const payBtn = !debt.paid ? `<button class="aabtn pay" onclick="payDebt(${debt.id})">✓ تسديد</button>` : `<span class="paidstamp">✅ تم التسديد</span>`;
-      const delBtn = !debt.paid ? `<button class="aabtn del" onclick="delDebt(${debt.id})">✕ حذف</button>` : '';
-      actionsHtml = `<div class="actactions">${payBtn}${waBtn}${delBtn}</div>`;
-    }
-    return `
-    <li class="actcard">
-      <div class="acttop">
-        <div class="actamt ${color}">${isPay||x.type==='lent'?'+':'-'}${fmtJD(x.amount)}</div>
-        <div class="actwho">
-          <span class="actname">${esc(x.name)}</span>
-          <span class="acttag ${x.type}">${tagLabel}</span>
-          <div class="actavatar">${x.type==='lent'?'👤':'🏪'}</div>
-        </div>
-      </div>
-      <div class="actrow2">
-        <span class="actbadge">${actionLabel}</span>
-        ${quickBtn}
-      </div>
-      <div class="actmeta">
-        <span>${x.phone ? 'بواسطة: '+esc(x.phone) : 'يدوي'}</span>
-        <span>${x.date} — ${x.time}</span>
-      </div>
-      ${actionsHtml}
-    </li>`;
-  }).join('');
+  if (openCustKey) renderCustomerModal(openCustKey);
+}
+
+function openCustomer(key) {
+  openCustKey = key;
+  renderCustomerModal(key);
+  document.getElementById('custModal').classList.add('show');
+}
+function closeCustomer() {
+  openCustKey = null;
+  document.getElementById('custModal').classList.remove('show');
+}
+
+function renderCustomerModal(key) {
+  const d = load();
+  const groups = groupByCustomer(d.debts);
+  const g = groups.find(x=>x.key===key);
+  if (!g) { closeCustomer(); return; }
+  const unpaid = g.items.filter(x=>!x.paid);
+  const paid = g.items.filter(x=>x.paid);
+  const total = unpaid.reduce((s,x)=>s+x.amount,0);
+
+  document.getElementById('cmName').textContent = g.name;
+  document.getElementById('cmPhone').textContent = g.phone || 'بدون رقم واتساب';
+  document.getElementById('cmTotal').textContent = fmtJD(total) + ' د.أ';
+
+  const waBtn = document.getElementById('cmWaBtn');
+  if (g.phone && unpaid.length) {
+    waBtn.style.display = 'flex';
+    waBtn.onclick = () => sendReminderFor(g.phone, g.name, unpaid);
+  } else {
+    waBtn.style.display = 'none';
+  }
+  document.getElementById('cmQuickBtn').onclick = () => quickAddForCustomer(g.name, g.phone);
+
+  const unpaidHtml = unpaid.length ? unpaid.map(x=>`
+    <div class="cmitem">
+      <div class="d"><div class="dd">${esc(x.desc||'دين')}</div><div class="dt">${x.date} — ${x.time}</div></div>
+      <div class="da">${fmtJD(x.amount)}</div>
+      <button class="ib pay" title="تسديد" onclick="payDebt(${x.id})">✓</button>
+      <button class="ib del" title="حذف" onclick="delDebt(${x.id})">✕</button>
+    </div>`).join('') : '<p style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">لا يوجد ديون غير مسددة 🎉</p>';
+  document.getElementById('cmUnpaidList').innerHTML = unpaidHtml;
+
+  document.getElementById('cmPaidTitle').style.display = paid.length ? 'block' : 'none';
+  document.getElementById('cmPaidList').innerHTML = paid.map(x=>`
+    <div class="cmitem paiditem">
+      <div class="d"><div class="dd">${esc(x.desc||'دين')}</div><div class="dt">${x.paidDate||x.date} — ${x.time}</div></div>
+      <div class="da">${fmtJD(x.amount)}</div>
+    </div>`).join('');
 }
 
 function openMo(icon,title,msg,cb) {
