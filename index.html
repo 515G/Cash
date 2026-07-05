@@ -68,6 +68,13 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 .bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;}
 .bem{background:linear-gradient(135deg,#ff4d6d,#d93354);color:#1a0008;}
 
+.custqty{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.qbtn{width:28px;height:28px;border-radius:8px;border:1.5px solid;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.qbtn.plus{background:rgba(0,217,126,0.1);border-color:var(--green);color:var(--green);}
+.qbtn.plus:hover{background:rgba(0,217,126,0.2);}
+.qbtn.minus{background:rgba(255,77,109,0.1);border-color:var(--red);color:var(--red);}
+.qbtn.minus:hover{background:rgba(255,77,109,0.2);}
+
 .custlist{list-style:none;}
 .custrow{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:border-color 0.2s;}
 .custrow:active{border-color:var(--blue);}
@@ -303,6 +310,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <div id="cmUnpaidList"></div>
     <div class="cmsectitle" id="cmPaidTitle" style="display:none;">الديون المسددة سابقاً</div>
     <div id="cmPaidList"></div>
+    <button class="aabtn del" style="width:100%;margin-top:20px;padding:12px;" onclick="deleteCustomer(openCustKey)">🗑️ حذف الزبون بالكامل</button>
   </div>
 </div>
 
@@ -664,11 +672,55 @@ function render() {
           <div class="custsub">${g.unpaidCount ? g.unpaidCount+' دين غير مسدد' : 'كل الديون مسددة'}</div>
         </div>
         <div class="custamt">${fmtJD(g.total)}</div>
-        <div class="custchev">‹</div>
+        <div class="custqty">
+          <button class="qbtn plus" onclick='event.stopPropagation(); promptAdjust(${JSON.stringify(g.key)}, "inc")'>+</button>
+          <button class="qbtn minus" onclick='event.stopPropagation(); promptAdjust(${JSON.stringify(g.key)}, "dec")'>−</button>
+        </div>
       </li>`).join('');
   }
 
   if (openCustKey) renderCustomerModal(openCustKey);
+}
+
+function promptAdjust(key, dir) {
+  const d = load();
+  const groups = groupByCustomer(d.debts);
+  const g = groups.find(x=>x.key===key);
+  if (!g) return;
+  const label = dir==='inc' ? 'أدخل مبلغ الزيادة على دين '+g.name+' (دينار):' : 'أدخل مبلغ التخفيض من دين '+g.name+' (دينار):';
+  const raw = window.prompt(label, '');
+  if (raw===null) return;
+  const amt = parseFloat(raw);
+  if (isNaN(amt) || amt<=0) { toast('💰 أدخل مبلغاً صحيحاً'); return; }
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ar-JO'), timeStr = now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
+  const debtId = Date.now();
+  const signedAmt = dir==='inc' ? amt : -amt;
+  const desc = dir==='inc' ? 'زيادة دين' : 'دفعة / تخفيض دين';
+  const d2 = load();
+  d2.debts.unshift({id:debtId, type:'lent', name:g.name, phone:g.phone, desc, amount:signedAmt, paid:false, isAdj:true, ts:now.getTime(), date:dateStr, time:timeStr});
+  d2.log.unshift({id:debtId+1, action: dir==='inc' ? 'add' : 'pay', debtId, name:g.name, phone:g.phone, type:'lent', desc, amount:amt, ts:now.getTime(), date:dateStr, time:timeStr});
+  save(d2);
+  render();
+  toast(dir==='inc' ? '✅ تمت زيادة الدين' : '✅ تم تسجيل التخفيض');
+}
+
+function deleteCustomer(key) {
+  if (!key) return;
+  const d = load();
+  const groups = groupByCustomer(d.debts);
+  const g = groups.find(x=>x.key===key);
+  if (!g) return;
+  openMo('🗑️','حذف الزبون بالكامل','هل تريد حذف '+g.name+' وكل ديونه نهائياً؟ ما في رجعة.',()=>{
+    const d2 = load();
+    const idsToRemove = new Set(d2.debts.filter(x=>custKeyOf(x.name,x.phone)===key).map(x=>x.id));
+    d2.debts = d2.debts.filter(x=>!idsToRemove.has(x.id));
+    d2.log = d2.log.filter(x=>!idsToRemove.has(x.debtId));
+    save(d2);
+    closeCustomer();
+    render();
+    toast('🗑 تم حذف الزبون');
+  });
 }
 
 function openCustomer(key) {
@@ -706,8 +758,8 @@ function renderCustomerModal(key) {
   const unpaidHtml = unpaid.length ? unpaid.map(x=>`
     <div class="cmitem">
       <div class="d"><div class="dd">${esc(x.desc||'دين')}</div><div class="dt">${x.date} — ${x.time}</div></div>
-      <div class="da">${fmtJD(x.amount)}</div>
-      <button class="ib pay" title="تسديد" onclick="payDebt(${x.id})">✓</button>
+      <div class="da" style="color:${x.amount<0?'var(--red)':'var(--green)'}">${x.amount<0?'':'+'}${fmtJD(x.amount)}</div>
+      ${x.isAdj ? '' : `<button class="ib pay" title="تسديد" onclick="payDebt(${x.id})">✓</button>`}
       <button class="ib del" title="حذف" onclick="delDebt(${x.id})">✕</button>
     </div>`).join('') : '<p style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">لا يوجد ديون غير مسددة 🎉</p>';
   document.getElementById('cmUnpaidList').innerHTML = unpaidHtml;
