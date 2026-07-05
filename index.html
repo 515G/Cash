@@ -119,12 +119,55 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 </style>
 </head>
 <body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="authScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:360px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 22px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="hicon" style="margin:0 auto 12px;">💳</div>
+      <h1 style="font-family:'Tajawal';font-size:20px;font-weight:800;">سجل الديون</h1>
+      <p style="font-size:12px;color:var(--muted);margin-top:4px;">سجّل دخولك لمتابعة بياناتك من أي جهاز</p>
+    </div>
+    <div class="trow" style="margin-bottom:16px;">
+      <button class="tbtn inc on" id="modeLogin" onclick="setAuthMode('login')">تسجيل الدخول</button>
+      <button class="tbtn exp" id="modeSignup" onclick="setAuthMode('signup')">حساب جديد</button>
+    </div>
+    <div class="ig">
+      <label>البريد الإلكتروني</label>
+      <input class="ifield" type="email" id="authEmail" placeholder="example@email.com" style="direction:ltr;text-align:right;">
+    </div>
+    <div class="ig">
+      <label>كلمة السر</label>
+      <input class="ifield" type="password" id="authPass" placeholder="6 أحرف على الأقل" style="direction:ltr;text-align:right;">
+    </div>
+    <div id="authErr" style="color:var(--red);font-size:12.5px;margin-bottom:10px;min-height:16px;"></div>
+    <button class="bsub bim" id="authSubBtn" onclick="submitAuth()">✓ تسجيل الدخول</button>
+    <div id="authLoading" style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px;display:none;">⏳ جاري التحقق...</div>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
 <div class="wrap">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <span id="userEmailLbl" style="font-size:11px;color:var(--muted);direction:ltr;"></span>
+    <button onclick="doLogout()" style="background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">خروج ⏻</button>
+  </div>
 
   <div class="header">
     <div class="hicon">💳</div>
     <h1>سجل الديون</h1>
     <p>لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
+  </div>
+
+  <!-- نسخة احتياطية -->
+  <div class="panel" style="padding:14px 16px;">
+    <div class="ptitle" style="margin-bottom:10px;">💾 نسخة احتياطية للبيانات</div>
+    <div style="display:flex;gap:8px;">
+      <button class="bsub bim" style="flex:1" onclick="exportBackup()">⬇️ تنزيل نسخة</button>
+      <button class="bsub" style="flex:1;background:var(--surface2);color:var(--text);border:1.5px solid var(--border)" onclick="document.getElementById('importFile').click()">⬆️ استعادة نسخة</button>
+    </div>
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
   </div>
 
   <!-- KPI dashboard -->
@@ -212,6 +255,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
   </ul>
 
 </div>
+</div>
 
 <!-- Modal -->
 <div class="mo" id="modal">
@@ -227,6 +271,103 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC6awQ5eNAFGn-RIYAERd2-b8cglKOpXKg",
+  authDomain: "debt-system-b9dba.firebaseapp.com",
+  projectId: "debt-system-b9dba",
+  storageBucket: "debt-system-b9dba.firebasestorage.app",
+  messagingSenderId: "1027318586227",
+  appId: "1:1027318586227:web:3c5ad206bbcc5da4c6c306",
+  measurementId: "G-5BGFKSP5Z0"
+};
+firebase.initializeApp(firebaseConfig);
+const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
+let currentUser = null, cloudSyncTimer = null, suppressPush = false;
+
+let authMode = 'login';
+function setAuthMode(m) {
+  authMode = m;
+  document.getElementById('modeLogin').classList.toggle('on', m==='login');
+  document.getElementById('modeSignup').classList.toggle('on', m==='signup');
+  document.getElementById('authSubBtn').textContent = m==='login' ? '✓ تسجيل الدخول' : '✓ إنشاء حساب';
+  document.getElementById('authErr').textContent = '';
+}
+
+function authErrMsg(err) {
+  const map = {
+    'auth/email-already-in-use':'هاد الإيميل مسجل عندنا أصلاً، جرب "تسجيل الدخول"',
+    'auth/invalid-email':'صيغة الإيميل مش صحيحة',
+    'auth/weak-password':'كلمة السر لازم تكون 6 أحرف أو أكتر',
+    'auth/user-not-found':'ما في حساب مسجل بهاد الإيميل',
+    'auth/wrong-password':'كلمة السر غلط',
+    'auth/invalid-credential':'الإيميل أو كلمة السر غلط',
+    'auth/too-many-requests':'محاولات كتيرة غلط، جرب بعد شوي'
+  };
+  return map[err.code] || ('صار خطأ: ' + err.message);
+}
+
+function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value;
+  document.getElementById('authErr').textContent = '';
+  if (!email || !pass) { document.getElementById('authErr').textContent = 'عبي الإيميل وكلمة السر'; return; }
+  document.getElementById('authLoading').style.display = 'block';
+  const done = () => document.getElementById('authLoading').style.display = 'none';
+  if (authMode === 'login') {
+    fbAuth.signInWithEmailAndPassword(email, pass).then(done).catch(err=>{ done(); document.getElementById('authErr').textContent = authErrMsg(err); });
+  } else {
+    fbAuth.createUserWithEmailAndPassword(email, pass).then(done).catch(err=>{ done(); document.getElementById('authErr').textContent = authErrMsg(err); });
+  }
+}
+
+function doLogout() {
+  openMo('👋','تسجيل الخروج','هل تريد تسجيل الخروج؟ بياناتك محفوظة بالسحابة وبترجعلك أول ما تسجل دخول تاني.',()=>{
+    fbAuth.signOut();
+  });
+}
+
+function loadFromCloud() {
+  return fbDb.collection('backups').doc(currentUser.uid).get().then(snap=>{
+    if (snap.exists && snap.data().payload) {
+      suppressPush = true;
+      localStorage.setItem(SK, snap.data().payload);
+      suppressPush = false;
+    }
+  }).catch(err=>{ console.error(err); toast('⚠️ ما قدرنا نجيب النسخة من السحابة'); });
+}
+
+function pushToCloud() {
+  if (!currentUser || suppressPush) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(()=>{
+    const raw = localStorage.getItem(SK);
+    fbDb.collection('backups').doc(currentUser.uid).set({payload: raw, updatedAt: Date.now()}).catch(err=>console.error(err));
+  }, 700);
+}
+
+fbAuth.onAuthStateChanged(user => {
+  currentUser = user;
+  if (user) {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = 'block';
+    document.getElementById('userEmailLbl').textContent = user.email || '';
+    loadFromCloud().then(()=>{ if (typeof render==='function') render(); });
+  } else {
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('appRoot').style.display = 'none';
+  }
+});
+
+['authEmail','authPass'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown', e=>{ if (e.key==='Enter') submitAuth(); });
+});
+</script>
 
 <script>
 const SK = 'cash_store_v2';
@@ -252,7 +393,46 @@ function load() {
     return d;
   } catch { return {debts:[],log:[]}; }
 }
-function save(d) { localStorage.setItem(SK, JSON.stringify(d)); }
+function save(d) { localStorage.setItem(SK, JSON.stringify(d)); pushToCloud(); }
+
+function exportBackup() {
+  const raw = localStorage.getItem(SK) || '{"debts":[],"log":[]}';
+  const blob = new Blob([raw], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = 'نسخة-احتياطية-سجل-الديون-' + stamp + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('⬇️ تم تنزيل النسخة الاحتياطية');
+}
+
+function importBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    let data;
+    try {
+      data = JSON.parse(ev.target.result);
+      if (!data || typeof data !== 'object') throw new Error('invalid');
+    } catch (err) {
+      toast('❌ الملف غير صالح');
+      e.target.value = '';
+      return;
+    }
+    openMo('⚠️','استعادة نسخة احتياطية','هل تريد استبدال كل البيانات الحالية بالنسخة المستوردة؟ لا يمكن التراجع.',()=>{
+      save({debts:data.debts||[], log:data.log||[]});
+      render();
+      toast('✅ تم استيراد النسخة الاحتياطية');
+    });
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
 
 function fmt(n) { return 'JD ' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtJD(n) { return n.toLocaleString('ar-JO',{minimumFractionDigits:3,maximumFractionDigits:3}); }
