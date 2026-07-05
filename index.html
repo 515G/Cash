@@ -81,7 +81,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 .custavatar{width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .custinfo{flex:1;min-width:0;}
 .custname{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.custsub{font-size:11px;color:var(--muted);margin-top:2px;}
+.custsub覆 {font-size:11px;color:var(--muted);margin-top:2px;}
 .custamt{font-family:'Tajawal';font-size:17px;font-weight:800;color:var(--green);direction:ltr;flex-shrink:0;}
 .custchev{color:var(--muted);font-size:16px;flex-shrink:0;}
 
@@ -160,7 +160,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 </head>
 <body>
 
-<!-- شاشة تسجيل الدخول -->
 <div id="authScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
   <div style="max-width:360px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 22px;">
     <div style="text-align:center;margin-bottom:20px;">
@@ -180,7 +179,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
       <label>كلمة السر</label>
       <input class="ifield" type="password" id="authPass" placeholder="6 أحرف على الأقل" style="direction:ltr;text-align:right;">
     </div>
-    <div id="authErr" style="color:var(--red);font-size:12.5px;margin-bottom:10px;min-height:16px;"></div>
+    <div id="authErr" style="color:var(--red);font-size:12.5px;margin-bottom:10px;min-height:16px;line-height: 1.4;"></div>
     <button class="bsub bim" id="authSubBtn" onclick="submitAuth()">✓ تسجيل الدخول</button>
     <div id="authLoading" style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px;display:none;">⏳ جاري التحقق...</div>
   </div>
@@ -200,7 +199,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <p>لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
   </div>
 
-  <!-- نسخة احتياطية -->
   <div class="panel" style="padding:14px 16px;">
     <div class="ptitle" style="margin-bottom:10px;">💾 نسخة احتياطية للبيانات</div>
     <div style="display:flex;gap:8px;">
@@ -210,7 +208,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
   </div>
 
-  <!-- KPI dashboard -->
   <div class="kdash">
     <div class="kcard">
       <div class="kicon">💼</div>
@@ -234,7 +231,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     </div>
   </div>
 
-  <!-- مؤشرات الأداء -->
   <div class="perf">
     <div class="perf-title">مؤشرات الأداء</div>
     <div class="perf-row">
@@ -251,7 +247,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     </div>
   </div>
 
-  <!-- تسجيل دين -->
   <div class="panel">
     <div class="ptitle">💳 تسجيل دين جديد</div>
     <div class="ig">
@@ -276,7 +271,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <button class="bsub bim" id="debtSubBtn" onclick="addDebt()">✓ تسجيل الدين</button>
   </div>
 
-  <!-- قائمة الزبائن -->
   <div class="actitle">👥 الزبائن</div>
   <div class="ig searchbar">
     <input class="ifield" type="text" id="searchInp" placeholder="🔍 دوّر باسم الزبون..." oninput="render()">
@@ -288,7 +282,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 </div>
 </div>
 
-<!-- نافذة تفاصيل الزبون -->
 <div class="cmoverlay" id="custModal">
   <div class="cmhead">
     <div class="cmback" onclick="closeCustomer()">←</div>
@@ -314,7 +307,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
   </div>
 </div>
 
-<!-- Modal -->
 <div class="mo" id="modal">
   <div class="mdl">
     <div class="mi" id="mIcon">⚠️</div>
@@ -353,6 +345,7 @@ function setAuthMode(m) {
   document.getElementById('modeLogin').classList.toggle('on', m==='login');
   document.getElementById('modeSignup').classList.toggle('on', m==='signup');
   document.getElementById('authSubBtn').textContent = m==='login' ? '✓ تسجيل الدخول' : '✓ إنشاء حساب';
+  document.getElementById('authErr').style.color = 'var(--red)';
   document.getElementById('authErr').textContent = '';
 }
 
@@ -372,14 +365,47 @@ function authErrMsg(err) {
 function submitAuth() {
   const email = document.getElementById('authEmail').value.trim();
   const pass = document.getElementById('authPass').value;
+  document.getElementById('authErr').style.color = 'var(--red)';
   document.getElementById('authErr').textContent = '';
   if (!email || !pass) { document.getElementById('authErr').textContent = 'عبي الإيميل وكلمة السر'; return; }
   document.getElementById('authLoading').style.display = 'block';
   const done = () => document.getElementById('authLoading').style.display = 'none';
+  
   if (authMode === 'login') {
-    fbAuth.signInWithEmailAndPassword(email, pass).then(done).catch(err=>{ done(); document.getElementById('authErr').textContent = authErrMsg(err); });
+    fbAuth.signInWithEmailAndPassword(email, pass)
+      .then((userCredential) => {
+        done();
+        // فحص إذا كان المستخدم فعل حسابه عبر الإيميل أم لا
+        if (!userCredential.user.emailVerified) {
+          fbAuth.signOut(); 
+          document.getElementById('authErr').textContent = '⚠️ يرجى تفعيل حسابك أولاً! تفقد بريدك الإلكتروني واضغط على رابط التفعيل المرسل إليك.';
+        }
+      })
+      .catch(err => { done(); document.getElementById('authErr').textContent = authErrMsg(err); });
   } else {
-    fbAuth.createUserWithEmailAndPassword(email, pass).then(done).catch(err=>{ done(); document.getElementById('authErr').textContent = authErrMsg(err); });
+    fbAuth.createUserWithEmailAndPassword(email, pass)
+      .then((userCredential) => {
+        // إعدادات التوجيه التلقائي للموقع بعد التفعيل
+        const actionCodeSettings = {
+          url: window.location.href, // يرجع تلقائياً لنفس رابط الصفحة الحالية
+          handleCodeInApp: true,
+        };
+        
+        // إرسال إيميل التحقق المخصص
+        userCredential.user.sendEmailVerification(actionCodeSettings)
+          .then(() => {
+            done();
+            fbAuth.signOut(); 
+            toast('✉️ تم إرسال رابط التفعيل لبريدك الإلكتروني!');
+            document.getElementById('authErr').style.color = 'var(--green)';
+            document.getElementById('authErr').textContent = '✅ تم إنشاء الحساب! تفقد بريدك الإلكتروني الآن واضغط على رابط التفعيل ثم عد لتسجيل الدخول.';
+          })
+          .catch(err => {
+            done();
+            document.getElementById('authErr').textContent = 'خطأ في إرسال إيميل التحقق: ' + err.message;
+          });
+      })
+      .catch(err => { done(); document.getElementById('authErr').textContent = authErrMsg(err); });
   }
 }
 
@@ -410,7 +436,7 @@ function pushToCloud() {
 
 fbAuth.onAuthStateChanged(user => {
   currentUser = user;
-  if (user) {
+  if (user && user.emailVerified) { // لا يدخل النظام الفعلي إلا لو كان الإيميل مفعلاً
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('appRoot').style.display = 'block';
     document.getElementById('userEmailLbl').textContent = user.email || '';
