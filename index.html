@@ -171,6 +171,32 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
   </div>
 </div>
 
+<!-- شاشة الاشتراك -->
+<div id="upgradeScreen" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:300;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:360px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 22px;text-align:center;">
+    <div class="hicon" style="margin:0 auto 14px;font-size:28px;">⭐</div>
+    <h1 style="font-family:'Tajawal';font-size:19px;font-weight:800;margin-bottom:8px;">خلص رصيدك المجاني</h1>
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;">استخدمت 500 رسالة تذكير مجانية. اشترك عشان تقدر تكمل الإرسال بدون حدود.</p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="color:var(--dim);font-size:13px;">اشتراك شهري</span>
+        <span style="font-family:'Tajawal';font-weight:800;color:var(--green);font-size:16px;">5 د.أ</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:var(--dim);font-size:13px;">اشتراك سنوي <span style="color:var(--gold);font-size:10px;">(وفّر 30%)</span></span>
+        <span style="font-family:'Tajawal';font-weight:800;color:var(--gold);font-size:16px;">75 د.أ</span>
+      </div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:16px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">حوّل قيمة الاشتراك عبر CliQ لـ:</div>
+      <div style="font-family:'Tajawal';font-size:20px;font-weight:800;color:var(--blue);direction:ltr;">OZX</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px;">البنك العربي — Arab Bank</div>
+    </div>
+    <button class="bsub bim" onclick="contactForSubscription()">📱 تواصل لتفعيل الاشتراك</button>
+    <button onclick="closeUpgradeScreen()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:12px;">إغلاق</button>
+  </div>
+</div>
+
 <div id="appRoot" style="display:none;">
 <div class="wrap">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -184,6 +210,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
     <div class="hicon">💳</div>
     <h1>سجل الديون</h1>
     <p id="shopSubLbl">لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
+    <p id="usageBadge" style="font-size:11px;color:var(--gold);margin-top:6px;font-weight:600;"></p>
   </div>
   <div class="panel" style="padding:14px 16px;">
     <div class="ptitle" style="margin-bottom:10px;">💾 نسخة احتياطية للبيانات</div>
@@ -406,12 +433,62 @@ function saveProfile() {
   }).catch(err=>{ document.getElementById('pfErr').textContent = 'صار خطأ، جرب بعد شوي'; });
 }
 
+let usageInfo = {msgCount:0, subscribed:false, subExpiry:0};
+
+function loadUsage() {
+  return fbDb.collection('backups').doc(currentUser.uid).get().then(snap=>{
+    const data = snap.exists ? snap.data() : null;
+    usageInfo.msgCount = (data && typeof data.msgCount==='number') ? data.msgCount : 0;
+    usageInfo.subscribed = !!(data && data.subscribed);
+    usageInfo.subExpiry = (data && data.subExpiry) ? data.subExpiry : 0;
+    updateUsageBadge();
+  });
+}
+
+function hasActiveSubscription() {
+  return usageInfo.subscribed && usageInfo.subExpiry && usageInfo.subExpiry > Date.now();
+}
+
+function canSendMessage() {
+  return hasActiveSubscription() || usageInfo.msgCount < 500;
+}
+
+function bumpMsgCount() {
+  usageInfo.msgCount += 1;
+  fbDb.collection('backups').doc(currentUser.uid).set({msgCount: usageInfo.msgCount}, {merge:true}).catch(err=>console.error(err));
+  updateUsageBadge();
+}
+
+function updateUsageBadge() {
+  const el = document.getElementById('usageBadge');
+  if (!el) return;
+  if (hasActiveSubscription()) {
+    const d = new Date(usageInfo.subExpiry);
+    el.textContent = '⭐ مشترك — لغاية ' + d.toLocaleDateString('ar-JO');
+  } else {
+    const remaining = Math.max(0, 500 - usageInfo.msgCount);
+    el.textContent = '📩 رسائل متبقية: ' + remaining + ' / 500';
+  }
+}
+
+function showUpgradeScreen() {
+  document.getElementById('upgradeScreen').style.display = 'flex';
+}
+function closeUpgradeScreen() {
+  document.getElementById('upgradeScreen').style.display = 'none';
+}
+function contactForSubscription() {
+  const msg = 'مرحباً، بدي أفعل اشتراك سجل الديون.\nالإيميل: ' + (currentUser ? currentUser.email : '') + '\nعدد الرسائل المستخدمة: ' + usageInfo.msgCount;
+  window.open('https://wa.me/962796073744?text=' + encodeURIComponent(msg), '_blank');
+}
+
 fbAuth.onAuthStateChanged(user => {
   currentUser = user;
   if (user && user.emailVerified) {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('userEmailLbl').textContent = user.email || '';
     loadProfile().then(()=>{
+      loadUsage();
       loadFromCloud().then(()=>{ if (typeof render==='function') render(); });
       if (!userProfile || !userProfile.shopName) {
         showProfileSetup('create');
@@ -540,7 +617,9 @@ function waLinkFor(phone, msg) {
   return `https://wa.me/${p}?text=${encodeURIComponent(msg)}`;
 }
 function sendReminderFor(phone, name, unpaidItems) {
+  if (!canSendMessage()) { showUpgradeScreen(); return; }
   window.open(waLinkFor(phone, buildReminderMsg(name, unpaidItems)), '_blank');
+  bumpMsgCount();
 }
 
 function unpaidOf(phoneOrName, isPhone) {
