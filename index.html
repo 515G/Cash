@@ -112,6 +112,15 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 .mbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .bcnl{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);padding:10px;font-family:'Cairo';font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;}
 .bcdl{background:linear-gradient(135deg,#ff4d6d,#d93354);border:none;border-radius:var(--rs);padding:10px;font-family:'Cairo';font-size:13px;font-weight:700;color:#fff;cursor:pointer;}
+.page{display:none;}
+.page.on{display:block;}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:none;z-index:120;padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,0.3);}
+.bottomnav.show{display:flex;}
+.navbtn{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;color:var(--muted);}
+.navbtn .navicon{font-size:20px;}
+.navbtn .navlbl{font-size:10.5px;font-weight:600;}
+.navbtn.on{color:var(--blue);}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:200;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 </style>
@@ -198,59 +207,84 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 </div>
 
 <div id="appRoot" style="display:none;">
-<div class="wrap">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-    <span id="userEmailLbl" style="font-size:11px;color:var(--muted);direction:ltr;"></span>
-    <div style="display:flex;gap:12px;">
-      <button onclick="showProfileSetup('edit')" style="background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">✏️ البروفايل</button>
-      <button onclick="doLogout()" style="background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">خروج ⏻</button>
+<div class="wrap" style="padding-bottom:90px;">
+
+  <!-- صفحة الرئيسية -->
+  <div class="page on" id="pageHome">
+    <div class="header">
+      <div class="hicon">💳</div>
+      <h1>سجل الديون</h1>
+      <p id="shopSubLbl">لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
+      <p id="usageBadge" style="font-size:11px;color:var(--gold);margin-top:6px;font-weight:600;"></p>
     </div>
-  </div>
-  <div class="header">
-    <div class="hicon">💳</div>
-    <h1>سجل الديون</h1>
-    <p id="shopSubLbl">لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
-    <p id="usageBadge" style="font-size:11px;color:var(--gold);margin-top:6px;font-weight:600;"></p>
-  </div>
-  <div class="panel" style="padding:14px 16px;">
-    <div class="ptitle" style="margin-bottom:10px;">💾 نسخة احتياطية للبيانات</div>
-    <div style="display:flex;gap:8px;">
-      <button class="bsub bim" style="flex:1" onclick="exportBackup()">⬇️ تنزيل نسخة</button>
-      <button class="bsub" style="flex:1;background:var(--surface2);color:var(--text);border:1.5px solid var(--border)" onclick="document.getElementById('importFile').click()">⬆️ استعادة نسخة</button>
+    <div class="kdash">
+      <div class="kcard"><div class="kicon">💼</div><div class="kval c-blue" id="kTotalDebt">JD 0.00</div><div class="klabel">مجموع الدين</div></div>
+      <div class="kcard"><div class="kicon">👥</div><div class="kval c-text" id="kCustomers">0</div><div class="klabel">إجمالي الزبائن</div></div>
+      <div class="kcard"><div class="kicon">✅</div><div class="kval c-green" id="kCollected">JD 0.00</div><div class="klabel">المحصل هذا الشهر</div></div>
+      <div class="kcard"><div class="kicon">↗️</div><div class="kval c-gold" id="kAdded">JD 0.00</div><div class="klabel">المضاف هذا الشهر</div></div>
     </div>
-    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
-  </div>
-  <div class="kdash">
-    <div class="kcard"><div class="kicon">💼</div><div class="kval c-blue" id="kTotalDebt">JD 0.00</div><div class="klabel">مجموع الدين</div></div>
-    <div class="kcard"><div class="kicon">👥</div><div class="kval c-text" id="kCustomers">0</div><div class="klabel">إجمالي الزبائن</div></div>
-    <div class="kcard"><div class="kicon">✅</div><div class="kval c-green" id="kCollected">JD 0.00</div><div class="klabel">المحصل هذا الشهر</div></div>
-    <div class="kcard"><div class="kicon">↗️</div><div class="kval c-gold" id="kAdded">JD 0.00</div><div class="klabel">المضاف هذا الشهر</div></div>
-  </div>
-  <div class="perf">
-    <div class="perf-title">مؤشرات الأداء</div>
-    <div class="perf-row">
-      <div class="perf-item"><div class="perf-icon">🔝</div><div class="perf-val" id="pMax">JD 0.00</div><div class="perf-lbl">أكبر دين على زبون</div></div>
-      <div class="perf-item"><div class="perf-icon">↩️</div><div class="perf-val" id="pAvg">JD 0.00</div><div class="perf-lbl">متوسط لكل زبون</div></div>
-    </div>
-  </div>
-  <div class="panel">
-    <div class="ptitle">💳 تسجيل دين جديد</div>
-    <div class="ig"><label>اسم الزبون</label><input class="ifield" type="text" id="debtName" placeholder="مثال: أبو محمد" maxlength="50"></div>
-    <div class="ig">
-      <label>رقم الواتساب (لإرسال تذكير تلقائي)</label>
-      <div class="phonerow">
-        <input class="ifield" type="tel" id="debtPhone" placeholder="07xxxxxxxx" maxlength="15">
-        <button type="button" class="bpick" onclick="pickContact()" title="اختيار من جهات الاتصال">📇</button>
+    <div class="perf">
+      <div class="perf-title">مؤشرات الأداء</div>
+      <div class="perf-row">
+        <div class="perf-item"><div class="perf-icon">🔝</div><div class="perf-val" id="pMax">JD 0.00</div><div class="perf-lbl">أكبر دين على زبون</div></div>
+        <div class="perf-item"><div class="perf-icon">↩️</div><div class="perf-val" id="pAvg">JD 0.00</div><div class="perf-lbl">متوسط لكل زبون</div></div>
       </div>
     </div>
-    <div class="ig"><label>البيان / سبب الدين</label><input class="ifield" type="text" id="debtDesc" placeholder="مثال: بضاعة، سلفة..." maxlength="80"></div>
-    <div class="ig"><label>المبلغ (دينار)</label><input class="ifield" type="number" id="debtAmt" placeholder="0.000" min="0" step="0.001"></div>
-    <button class="bsub bim" id="debtSubBtn" onclick="addDebt()">✓ تسجيل الدين</button>
   </div>
-  <div class="actitle">👥 الزبائن</div>
-  <div class="ig searchbar"><input class="ifield" type="text" id="searchInp" placeholder="🔍 دوّر باسم الزبون..." oninput="render()"></div>
-  <ul class="custlist" id="custList"><li class="empty"><div class="ei">👥</div><p>لا يوجد زبائن بعد</p></li></ul>
+
+  <!-- صفحة الزبائن -->
+  <div class="page" id="pageCustomers">
+    <div class="actitle">👥 الزبائن</div>
+    <div class="ig searchbar"><input class="ifield" type="text" id="searchInp" placeholder="🔍 دوّر باسم الزبون..." oninput="render()"></div>
+    <ul class="custlist" id="custList"><li class="empty"><div class="ei">👥</div><p>لا يوجد زبائن بعد</p></li></ul>
+  </div>
+
+  <!-- صفحة تسجيل دين -->
+  <div class="page" id="pageAddDebt">
+    <div class="panel">
+      <div class="ptitle">💳 تسجيل دين جديد</div>
+      <div class="ig"><label>اسم الزبون</label><input class="ifield" type="text" id="debtName" placeholder="مثال: أبو محمد" maxlength="50"></div>
+      <div class="ig">
+        <label>رقم الواتساب (لإرسال تذكير تلقائي)</label>
+        <div class="phonerow">
+          <input class="ifield" type="tel" id="debtPhone" placeholder="07xxxxxxxx" maxlength="15">
+          <button type="button" class="bpick" onclick="pickContact()" title="اختيار من جهات الاتصال">📇</button>
+        </div>
+      </div>
+      <div class="ig"><label>البيان / سبب الدين</label><input class="ifield" type="text" id="debtDesc" placeholder="مثال: بضاعة، سلفة..." maxlength="80"></div>
+      <div class="ig"><label>المبلغ (دينار)</label><input class="ifield" type="number" id="debtAmt" placeholder="0.000" min="0" step="0.001"></div>
+      <button class="bsub bim" id="debtSubBtn" onclick="addDebt()">✓ تسجيل الدين</button>
+    </div>
+  </div>
+
+  <!-- صفحة الإعدادات -->
+  <div class="page" id="pageSettings">
+    <div class="actitle">⚙️ الإعدادات</div>
+    <div class="panel">
+      <div class="ptitle">👤 الحساب</div>
+      <div style="font-size:12.5px;color:var(--muted);direction:ltr;text-align:right;margin-bottom:12px;" id="userEmailLbl"></div>
+      <button class="bsub" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border);margin-bottom:8px;" onclick="showProfileSetup('edit')">✏️ تعديل البروفايل</button>
+      <button class="bsub" style="background:var(--surface2);color:var(--red);border:1.5px solid var(--border);" onclick="doLogout()">⏻ تسجيل الخروج</button>
+    </div>
+    <div class="panel">
+      <div class="ptitle">💾 نسخة احتياطية للبيانات</div>
+      <div style="display:flex;gap:8px;">
+        <button class="bsub bim" style="flex:1" onclick="exportBackup()">⬇️ تنزيل نسخة</button>
+        <button class="bsub" style="flex:1;background:var(--surface2);color:var(--text);border:1.5px solid var(--border)" onclick="document.getElementById('importFile').click()">⬆️ استعادة نسخة</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
+    </div>
+  </div>
+
 </div>
+</div>
+
+<!-- شريط التنقل السفلي -->
+<div class="bottomnav" id="bottomNav">
+  <button class="navbtn on" id="navHome" onclick="switchPage('Home')"><span class="navicon">🏠</span><span class="navlbl">الرئيسية</span></button>
+  <button class="navbtn" id="navCustomers" onclick="switchPage('Customers')"><span class="navicon">👥</span><span class="navlbl">الزبائن</span></button>
+  <button class="navbtn" id="navAddDebt" onclick="switchPage('AddDebt')"><span class="navicon">➕</span><span class="navlbl">تسجيل دين</span></button>
+  <button class="navbtn" id="navSettings" onclick="switchPage('Settings')"><span class="navicon">⚙️</span><span class="navlbl">الإعدادات</span></button>
 </div>
 
 <div class="cmoverlay" id="custModal">
@@ -364,6 +398,18 @@ function submitAuth() {
   }
 }
 
+function switchPage(name) {
+  ['Home','Customers','AddDebt','Settings'].forEach(p=>{
+    document.getElementById('page'+p).classList.toggle('on', p===name);
+    document.getElementById('nav'+p).classList.toggle('on', p===name);
+  });
+}
+
+function setAppVisible(visible) {
+  document.getElementById('appRoot').style.display = visible ? 'block' : 'none';
+  document.getElementById('bottomNav').classList.toggle('show', visible);
+}
+
 function doLogout() {
   openMo('👋','تسجيل الخروج','هل تريد تسجيل الخروج؟ بياناتك محفوظة بالسحابة وبترجعلك أول ما تسجل دخول تاني.',()=>{
     fbAuth.signOut();
@@ -411,13 +457,13 @@ function showProfileSetup(mode) {
   document.getElementById('pfErr').textContent = '';
   document.getElementById('profileTitle').textContent = mode==='edit' ? 'تعديل الملف الشخصي' : 'أهلاً! خلينا نجهز محلك';
   document.getElementById('profileSkipRow').style.display = mode==='edit' ? 'block' : 'none';
-  document.getElementById('appRoot').style.display = 'none';
+  setAppVisible(false);
   document.getElementById('profileScreen').style.display = 'flex';
 }
 
 function closeProfileScreen() {
   document.getElementById('profileScreen').style.display = 'none';
-  document.getElementById('appRoot').style.display = 'block';
+  setAppVisible(true);
 }
 
 function saveProfile() {
@@ -495,13 +541,13 @@ fbAuth.onAuthStateChanged(user => {
       } else {
         applyProfileToUI();
         document.getElementById('profileScreen').style.display = 'none';
-        document.getElementById('appRoot').style.display = 'block';
+        setAppVisible(true);
       }
     });
   } else {
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('profileScreen').style.display = 'none';
-    document.getElementById('appRoot').style.display = 'none';
+    setAppVisible(false);
   }
 });
 
