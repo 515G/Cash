@@ -562,8 +562,8 @@ function updateUsageBadge() {
     const d = new Date(usageInfo.subExpiry);
     el.textContent = '⭐ مشترك — لغاية ' + d.toLocaleDateString('ar-JO');
   } else {
-    const remaining = Math.max(0, 500 - usageInfo.msgCount);
-    el.textContent = '📩 رسائل متبقية: ' + remaining + ' / 500';
+    const remaining = Math.max(0, 50 - usageInfo.msgCount);
+    el.textContent = '📩 رسائل متبقية: ' + remaining + ' / 50';
   }
 }
 
