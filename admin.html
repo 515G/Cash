@@ -129,7 +129,7 @@ function listAllUsers() {
       const d = doc.data();
       const label = d.email || ('(بدون إيميل — ' + doc.id.slice(0,8) + '...)');
       const active = d.subscribed && d.subExpiry && (new Date(d.subExpiry+'T23:59:59').getTime() > Date.now());
-      html += '<button class="bsub bgray" style="text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;" onclick="selectDoc(' + JSON.stringify(doc.id) + ')">' +
+      html += "<button class='bsub bgray' style='text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;' onclick='selectDoc(" + JSON.stringify(doc.id) + ")'>" +
         '<span>' + (active ? '⭐ ' : '') + label + '</span></button>';
     });
     panel.innerHTML = html;
