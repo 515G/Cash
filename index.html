@@ -215,7 +215,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
       <div class="hicon">💳</div>
       <h1>سجل الديون</h1>
       <p id="shopSubLbl">لوحة تحكم كاملة — تذكير واتساب تلقائي</p>
-      <p id="usageBadge" style="font-size:11px;color:var(--gold);margin-top:6px;font-weight:600;"></p>
     </div>
     <div class="kdash">
       <div class="kcard"><div class="kicon">💼</div><div class="kval c-blue" id="kTotalDebt">JD 0.00</div><div class="klabel">مجموع الدين</div></div>
@@ -267,6 +266,11 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
       <button class="bsub" style="background:var(--surface2);color:var(--red);border:1.5px solid var(--border);" onclick="doLogout()">⏻ تسجيل الخروج</button>
     </div>
     <div class="panel">
+      <div class="ptitle">⭐ الاشتراك</div>
+      <p id="usageBadge" style="font-size:13px;color:var(--gold);font-weight:600;margin-bottom:10px;"></p>
+      <button class="bsub bim" onclick="showUpgradeScreen()">⭐ ترقية / تفعيل اشتراك</button>
+    </div>
+    <div class="panel">
       <div class="ptitle">💾 نسخة احتياطية للبيانات</div>
       <div style="display:flex;gap:8px;">
         <button class="bsub bim" style="flex:1" onclick="exportBackup()">⬇️ تنزيل نسخة</button>
@@ -274,6 +278,15 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
       </div>
       <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
     </div>
+    <div class="panel">
+      <div class="ptitle">📞 الدعم</div>
+      <button class="bsub" style="background:var(--surface2);color:var(--blue);border:1.5px solid var(--border);" onclick="contactSupport()">📱 تواصل مع الدعم</button>
+    </div>
+    <div class="panel">
+      <div class="ptitle" style="color:var(--red);">⚠️ منطقة الخطر</div>
+      <button class="bsub" style="background:var(--surface2);color:var(--red);border:1.5px solid var(--red);" onclick="confirmDeleteAccount()">🗑️ حذف الحساب نهائياً</button>
+    </div>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:6px;">سجل الديون — الإصدار 1.0.0</p>
   </div>
 
 </div>
@@ -408,6 +421,43 @@ function switchPage(name) {
 function setAppVisible(visible) {
   document.getElementById('appRoot').style.display = visible ? 'block' : 'none';
   document.getElementById('bottomNav').classList.toggle('show', visible);
+}
+
+function contactSupport() {
+  const msg = 'مرحباً، محتاج مساعدة بخصوص تطبيق سجل الديون.\nالإيميل: ' + (currentUser ? currentUser.email : '');
+  window.open('https://wa.me/962796073744?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function confirmDeleteAccount() {
+  openMo('🗑️','حذف الحساب نهائياً','هل أنت متأكد؟ رح ينحذف حسابك وكل بياناتك (الزبائن والديون) نهائياً من السحابة. ما في رجعة!',()=>{
+    doDeleteAccount();
+  });
+}
+
+function doDeleteAccount() {
+  const uid = currentUser.uid;
+  fbDb.collection('backups').doc(uid).delete().then(()=>{
+    return currentUser.delete();
+  }).then(()=>{
+    toast('🗑 تم حذف الحساب نهائياً');
+  }).catch(err=>{
+    if (err.code === 'auth/requires-recent-login') {
+      const pass = window.prompt('لأسباب أمان، أدخل كلمة السر مرة ثانية لتأكيد الحذف:');
+      if (!pass) return;
+      const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pass);
+      currentUser.reauthenticateWithCredential(cred).then(()=>{
+        return fbDb.collection('backups').doc(uid).delete();
+      }).then(()=>{
+        return currentUser.delete();
+      }).then(()=>{
+        toast('🗑 تم حذف الحساب نهائياً');
+      }).catch(()=>{
+        toast('⚠️ ما قدرنا نأكد كلمة السر، جرب تسجل خروج ودخول وحاول تاني');
+      });
+    } else {
+      toast('⚠️ صار خطأ، جرب بعد شوي');
+    }
+  });
 }
 
 function doLogout() {
