@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>لوحة التحكم — سجل الديون</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d12;--surface:#13161f;--surface2:#1a1e2b;--border:#252a3a;--green:#00d97e;--red:#ff4d6d;--gold:#f5c842;--blue:#3d8bff;--text:#e8eaf0;--muted:#636b85;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;min-height:100vh;}
+.wrap{max-width:480px;margin:0 auto;padding:24px 16px 60px;}
+h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.ig{margin-bottom:12px;}
+.ig label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;}
+.ifield{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Cairo';font-size:15px;outline:none;direction:ltr;text-align:right;}
+.bsub{width:100%;padding:12px;border:none;border-radius:10px;font-family:'Cairo';font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;}
+.bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;}
+.bgold{background:linear-gradient(135deg,#f5c842,#d9a832);color:#2a2000;}
+.bgray{background:var(--surface2);color:var(--text);border:1.5px solid var(--border);}
+.bred{background:var(--surface2);color:var(--red);border:1.5px solid var(--red);}
+.row{display:flex;gap:8px;}
+.row .bsub{flex:1;}
+.err{color:var(--red);font-size:12.5px;min-height:16px;margin-bottom:8px;}
+.info{color:var(--muted);font-size:12.5px;margin-bottom:8px;}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;}
+.card div{font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;direction:ltr;}
+.card div span:first-child{color:var(--muted);direction:rtl;}
+.badge{padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge.on{background:rgba(0,217,126,0.15);color:var(--green);}
+.badge.off{background:rgba(255,77,109,0.15);color:var(--red);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚙️ لوحة تحكم — سجل الديون</h1>
+
+  <div id="loginPanel" class="panel">
+    <div class="ig"><label>إيميل المدير</label><input class="ifield" type="email" id="adEmail"></div>
+    <div class="ig"><label>كلمة السر</label><input class="ifield" type="password" id="adPass"></div>
+    <div class="err" id="loginErr"></div>
+    <button class="bsub bim" onclick="adminLogin()">دخول</button>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <div class="panel">
+      <div class="ig"><label>إيميل الزبون (صاحب المحل)</label><input class="ifield" type="email" id="searchEmail"></div>
+      <button class="bsub bgray" onclick="searchUser()">🔍 بحث</button>
+      <div class="err" id="searchErr"></div>
+    </div>
+
+    <div id="resultCard" style="display:none;">
+      <div class="card">
+        <div><span>الإيميل:</span><span id="rEmail"></span></div>
+        <div><span>رسائل مستخدمة:</span><span id="rMsg"></span></div>
+        <div><span>حالة الاشتراك:</span><span id="rStatus"></span></div>
+        <div><span>ينتهي بتاريخ:</span><span id="rExpiry"></span></div>
+      </div>
+      <div class="panel">
+        <div class="row">
+          <button class="bsub bim" onclick="activate(30)">✅ فعّل شهر</button>
+          <button class="bsub bgold" onclick="activate(365)">✅ فعّل سنة</button>
+        </div>
+        <button class="bsub bred" onclick="deactivate()">❌ إلغاء الاشتراك</button>
+        <button class="bsub bgray" onclick="resetMsgCount()">🔄 تصفير عداد الرسائل</button>
+      </div>
+    </div>
+
+    <button class="bsub bgray" onclick="adminLogout()">⏻ خروج</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC6awQ5eNAFGn-RIYAERd2-b8cglKOpXKg",
+  authDomain: "debt-system-b9dba.firebaseapp.com",
+  projectId: "debt-system-b9dba",
+  storageBucket: "debt-system-b9dba.firebasestorage.app",
+  messagingSenderId: "1027318586227",
+  appId: "1:1027318586227:web:3c5ad206bbcc5da4c6c306",
+  measurementId: "G-5BGFKSP5Z0"
+};
+firebase.initializeApp(firebaseConfig);
+const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
+const ADMIN_EMAIL = 'abdurrahmanb1222@gmail.com';
+let currentDocId = null;
+
+function adminLogin() {
+  const email = document.getElementById('adEmail').value.trim();
+  const pass = document.getElementById('adPass').value;
+  document.getElementById('loginErr').textContent = '';
+  if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    document.getElementById('loginErr').textContent = 'هاد الإيميل مش مخول لدخول لوحة التحكم';
+    return;
+  }
+  fbAuth.signInWithEmailAndPassword(email, pass).catch(err=>{
+    document.getElementById('loginErr').textContent = 'خطأ: ' + err.message;
+  });
+}
+
+function adminLogout() { fbAuth.signOut(); }
+
+fbAuth.onAuthStateChanged(user => {
+  if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    document.getElementById('loginPanel').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+  } else {
+    document.getElementById('loginPanel').style.display = 'block';
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+});
+
+function searchUser() {
+  const email = document.getElementById('searchEmail').value.trim();
+  document.getElementById('searchErr').textContent = '';
+  document.getElementById('resultCard').style.display = 'none';
+  if (!email) { document.getElementById('searchErr').textContent = 'اكتب إيميل الزبون'; return; }
+  fbDb.collection('backups').where('email','==', email).limit(1).get().then(snap=>{
+    if (snap.empty) {
+      document.getElementById('searchErr').textContent = 'ما لقيت حساب بهاد الإيميل';
+      return;
+    }
+    const doc = snap.docs[0];
+    currentDocId = doc.id;
+    const data = doc.data();
+    document.getElementById('rEmail').textContent = data.email || '-';
+    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 500';
+    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
+    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
+    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
+    document.getElementById('resultCard').style.display = 'block';
+  }).catch(err=>{
+    document.getElementById('searchErr').textContent = 'صار خطأ: ' + err.message;
+  });
+}
+
+function addDays(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0,10);
+}
+
+function activate(days) {
+  if (!currentDocId) return;
+  const expiry = addDays(days);
+  fbDb.collection('backups').doc(currentDocId).set({subscribed:true, subExpiry: expiry}, {merge:true}).then(()=>{
+    alert('✅ تم تفعيل الاشتراك لغاية ' + expiry);
+    searchUser();
+  }).catch(err=> alert('خطأ: ' + err.message));
+}
+
+function deactivate() {
+  if (!currentDocId) return;
+  fbDb.collection('backups').doc(currentDocId).set({subscribed:false}, {merge:true}).then(()=>{
+    alert('✅ تم إلغاء الاشتراك');
+    searchUser();
+  }).catch(err=> alert('خطأ: ' + err.message));
+}
+
+function resetMsgCount() {
+  if (!currentDocId) return;
+  fbDb.collection('backups').doc(currentDocId).set({msgCount:0}, {merge:true}).then(()=>{
+    alert('✅ تم تصفير العداد');
+    searchUser();
+  }).catch(err=> alert('خطأ: ' + err.message));
+}
+</script>
+</body>
+</html>
