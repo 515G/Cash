@@ -138,16 +138,30 @@ function listAllUsers() {
   });
 }
 
+function displayUserData(data) {
+  document.getElementById('rEmail').textContent = data.email || '(بدون إيميل)';
+  
+  // فحص إذا كان الحساب مشتركاً حالياً وبشكل فعال
+  const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
+  
+  if (active) {
+    // إذا كان مشتركاً، يظهر العداد كـ "بدون حد"
+    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / بدون حد (مشترك)';
+    document.getElementById('rStatus').innerHTML = '<span class="badge on">مشترك ✅</span>';
+  } else {
+    // إذا لم يكن مشتركاً، يظهر العداد العادي من 50
+    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 50';
+    document.getElementById('rStatus').innerHTML = '<span class="badge off">مش مشترك</span>';
+  }
+  
+  document.getElementById('rExpiry').textContent = data.subExpiry || '-';
+  document.getElementById('resultCard').style.display = 'block';
+}
+
 function selectDoc(docId) {
   currentDocId = docId;
   fbDb.collection('backups').doc(docId).get().then(doc=>{
-    const data = doc.data();
-    document.getElementById('rEmail').textContent = data.email || '(بدون إيميل)';
-    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 500';
-    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
-    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
-    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
-    document.getElementById('resultCard').style.display = 'block';
+    displayUserData(doc.data());
     document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
   });
 }
@@ -164,13 +178,7 @@ function searchUser() {
     }
     const doc = snap.docs[0];
     currentDocId = doc.id;
-    const data = doc.data();
-    document.getElementById('rEmail').textContent = data.email || '-';
-    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 500';
-    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
-    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
-    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
-    document.getElementById('resultCard').style.display = 'block';
+    displayUserData(doc.data());
   }).catch(err=>{
     document.getElementById('searchErr').textContent = 'صار خطأ: ' + err.message;
   });
@@ -185,9 +193,11 @@ function addDays(days) {
 function activate(days) {
   if (!currentDocId) return;
   const expiry = addDays(days);
-  fbDb.collection('backups').doc(currentDocId).set({subscribed:true, subExpiry: expiry}, {merge:true}).then(()=>{
-    alert('✅ تم تفعيل الاشتراك لغاية ' + expiry);
-    searchUser();
+  // عند التفعيل يتم تصفير العداد وجعل المشترك true
+  fbDb.collection('backups').doc(currentDocId).set({subscribed:true, subExpiry: expiry, msgCount: 0}, {merge:true}).then(()=>{
+    alert('✅ تم تفعيل الاشتراك وتصفير العداد لغاية ' + expiry);
+    // إعادة جلب البيانات لتحديث العرض فوراً
+    fbDb.collection('backups').doc(currentDocId).get().then(doc => displayUserData(doc.data()));
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 
@@ -195,7 +205,7 @@ function deactivate() {
   if (!currentDocId) return;
   fbDb.collection('backups').doc(currentDocId).set({subscribed:false}, {merge:true}).then(()=>{
     alert('✅ تم إلغاء الاشتراك');
-    searchUser();
+    fbDb.collection('backups').doc(currentDocId).get().then(doc => displayUserData(doc.data()));
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 
@@ -203,7 +213,7 @@ function resetMsgCount() {
   if (!currentDocId) return;
   fbDb.collection('backups').doc(currentDocId).set({msgCount:0}, {merge:true}).then(()=>{
     alert('✅ تم تصفير العداد');
-    searchUser();
+    fbDb.collection('backups').doc(currentDocId).get().then(doc => displayUserData(doc.data()));
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 </script>
