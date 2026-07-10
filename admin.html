@@ -45,8 +45,8 @@ h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
 
   <div id="adminPanel" style="display:none;">
     <div class="panel">
-      <div class="ig"><label>إيميل الزبون أو الـ UID للمستند</label><input class="ifield" type="text" id="searchEmail" placeholder="example@mail.com أو معرف الحساب"></div>
-      <button class="bsub bgray" onclick="searchUser()">🔍 بحث ذكي</button>
+      <div class="ig"><label>إيميل الزبون (صاحب المحل)</label><input class="ifield" type="email" id="searchEmail"></div>
+      <button class="bsub bgray" onclick="searchUser()">🔍 بحث</button>
       <div class="err" id="searchErr"></div>
       <button class="bsub bgray" onclick="listAllUsers()" style="margin-top:14px;">📋 عرض كل الحسابات</button>
     </div>
@@ -55,7 +55,6 @@ h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
 
     <div id="resultCard" style="display:none;">
       <div class="card">
-        <div><span>المعرف (Doc ID):</span><span id="rDocId" style="font-size:11px;color:var(--muted);user-select:all;"></span></div>
         <div><span>الإيميل:</span><span id="rEmail"></span></div>
         <div><span>رسائل مستخدمة:</span><span id="rMsg"></span></div>
         <div><span>حالة الاشتراك:</span><span id="rStatus"></span></div>
@@ -119,35 +118,19 @@ fbAuth.onAuthStateChanged(user => {
   }
 });
 
-// مصفوفة مؤقتة لحفظ الحسابات لتجنب مشاكل علامات التنصيص في الـ onclick
-let loadedUsers = {};
-
 function listAllUsers() {
   const panel = document.getElementById('listPanel');
   panel.style.display = 'block';
   panel.innerHTML = '<div class="info">⏳ عم نجيب القائمة...</div>';
-  
   fbDb.collection('backups').get().then(snap=>{
-    if (snap.empty) { panel.innerHTML = '<div class="info">ما في حسابات بالداتابيز</div>'; return; }
-    
-    loadedUsers = {}; // تصفير المصفوفة
+    if (snap.empty) { panel.innerHTML = '<div class="info">ما في حسابات</div>'; return; }
     let html = '<div class="ptitle" style="font-weight:700;margin-bottom:10px;">كل الحسابات (' + snap.size + ')</div>';
-    
     snap.forEach(doc=>{
-      const d = doc.data() || {};
-      const id = doc.id;
-      loadedUsers[id] = d; // حفظ البيانات محلياً
-      
-      const label = d.email || ('(بدون إيميل — ' + id.slice(0,8) + '...)');
-      
-      let active = false;
-      if (d.subscribed && d.subExpiry) {
-        try { active = (new Date(d.subExpiry+'T23:59:59').getTime() > Date.now()); } catch(e){}
-      }
-      
-      // تم التعديل هنا لتمرير الـ ID بأمان تاري وبدون كراش
-      html += `<button class="bsub bgray" style="text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;" onclick="selectDoc('${id}')">` +
-        `<span>${active ? '⭐ ' : ''}${label}</span> <span style="font-size:10px;color:var(--muted);">${id.slice(0,5)}</span></button>`;
+      const d = doc.data();
+      const label = d.email || ('(بدون إيميل — ' + doc.id.slice(0,8) + '...)');
+      const active = d.subscribed && d.subExpiry && (new Date(d.subExpiry+'T23:59:59').getTime() > Date.now());
+      html += '<button class="bsub bgray" style="text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;" onclick="selectDoc(' + JSON.stringify(doc.id) + ')">' +
+        '<span>' + (active ? '⭐ ' : '') + label + '</span></button>';
     });
     panel.innerHTML = html;
   }).catch(err=>{
@@ -155,74 +138,41 @@ function listAllUsers() {
   });
 }
 
-function displayUserData(docId, data) {
-  if (!data) data = {};
-  document.getElementById('rDocId').textContent = docId;
-  document.getElementById('rEmail').textContent = data.email || '(حساب جديد / بدون إيميل)';
-  
-  let active = false;
-  if (data.subscribed && data.subExpiry) {
-    try {
-      active = (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
-    } catch(e) { active = false; }
-  }
-  
-  if (active) {
-    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / بدون حد (مشترك)';
-    document.getElementById('rStatus').innerHTML = '<span class="badge on">مشترك ✅</span>';
-  } else {
-    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 50';
-    document.getElementById('rStatus').innerHTML = '<span class="badge off">مش مشترك</span>';
-  }
-  
-  document.getElementById('rExpiry').textContent = data.subExpiry || '-';
-  document.getElementById('resultCard').style.display = 'block';
-}
-
 function selectDoc(docId) {
   currentDocId = docId;
-  // جلب البيانات مباشرة للتأكد من أحدث حالة من السيرفر
   fbDb.collection('backups').doc(docId).get().then(doc=>{
-    displayUserData(docId, doc.exists ? doc.data() : {});
-    document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
-  }).catch(err => {
-    // إذا فشل السيرفر لأي سبب، نعرض المحفوظ محلياً كخيار احتياطي
-    displayUserData(docId, loadedUsers[docId] || {});
+    const data = doc.data();
+    document.getElementById('rEmail').textContent = data.email || '(بدون إيميل)';
+    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 50';
+    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
+    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
+    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
+    document.getElementById('resultCard').style.display = 'block';
     document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
   });
 }
 
 function searchUser() {
-  const queryStr = document.getElementById('searchEmail').value.trim();
+  const email = document.getElementById('searchEmail').value.trim();
   document.getElementById('searchErr').textContent = '';
   document.getElementById('resultCard').style.display = 'none';
-  if (!queryStr) { document.getElementById('searchErr').textContent = 'اكتب الإيميل أو الـ UID للبحث'; return; }
-  
-  fbDb.collection('backups').doc(queryStr).get().then(doc => {
-    if (doc.exists) {
-      currentDocId = doc.id;
-      displayUserData(doc.id, doc.data());
-    } else {
-      fbDb.collection('backups').where('email', '==', queryStr).limit(1).get().then(snap => {
-        if (snap.empty) {
-          fbDb.collection('backups').where('email', '==', queryStr.toLowerCase()).limit(1).get().then(snap2 => {
-            if (snap2.empty) {
-              document.getElementById('searchErr').textContent = 'لم يتم العثور على الحساب بالإيميل أو المعرف المكتوب';
-            } else {
-              const d = snap2.docs[0];
-              currentDocId = d.id;
-              displayUserData(d.id, d.data());
-            }
-          });
-        } else {
-          const d = snap.docs[0];
-          currentDocId = d.id;
-          displayUserData(d.id, d.data());
-        }
-      });
+  if (!email) { document.getElementById('searchErr').textContent = 'اكتب إيميل الزبون'; return; }
+  fbDb.collection('backups').where('email','==', email).limit(1).get().then(snap=>{
+    if (snap.empty) {
+      document.getElementById('searchErr').textContent = 'ما لقيت حساب بهاد الإيميل';
+      return;
     }
-  }).catch(err => {
-    document.getElementById('searchErr').textContent = 'صار خطأ في البحث: ' + err.message;
+    const doc = snap.docs[0];
+    currentDocId = doc.id;
+    const data = doc.data();
+    document.getElementById('rEmail').textContent = data.email || '-';
+    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 50';
+    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
+    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
+    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
+    document.getElementById('resultCard').style.display = 'block';
+  }).catch(err=>{
+    document.getElementById('searchErr').textContent = 'صار خطأ: ' + err.message;
   });
 }
 
@@ -235,30 +185,25 @@ function addDays(days) {
 function activate(days) {
   if (!currentDocId) return;
   const expiry = addDays(days);
-  
-  fbDb.collection('backups').doc(currentDocId).set({
-    subscribed: true, 
-    subExpiry: expiry, 
-    msgCount: 0
-  }, {merge:true}).then(()=>{
-    alert('✅ تم تفعيل الاشتراك بنجاح وتصفير العداد لغاية ' + expiry);
-    fbDb.collection('backups').doc(currentDocId).get().then(doc => displayUserData(currentDocId, doc.data()));
-  }).catch(err=> alert('خطأ أثناء التفعيل: ' + err.message));
+  fbDb.collection('backups').doc(currentDocId).set({subscribed:true, subExpiry: expiry}, {merge:true}).then(()=>{
+    alert('✅ تم تفعيل الاشتراك لغاية ' + expiry);
+    searchUser();
+  }).catch(err=> alert('خطأ: ' + err.message));
 }
 
 function deactivate() {
   if (!currentDocId) return;
   fbDb.collection('backups').doc(currentDocId).set({subscribed:false}, {merge:true}).then(()=>{
     alert('✅ تم إلغاء الاشتراك');
-    fbDb.collection('backups').doc(currentDocId).get().then(doc => displayUserData(currentDocId, doc.data()));
+    searchUser();
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 
 function resetMsgCount() {
   if (!currentDocId) return;
   fbDb.collection('backups').doc(currentDocId).set({msgCount:0}, {merge:true}).then(()=>{
-    alert('✅ تم تصفير العداد بنجاح');
-    fbDb.collection('backups').doc(currentDocId).get().then(doc => displayUserData(currentDocId, doc.data()));
+    alert('✅ تم تصفير العداد');
+    searchUser();
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 </script>
