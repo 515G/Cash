@@ -185,7 +185,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
   <div style="max-width:360px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px 22px;text-align:center;">
     <div class="hicon" style="margin:0 auto 14px;font-size:28px;">⭐</div>
     <h1 style="font-family:'Tajawal';font-size:19px;font-weight:800;margin-bottom:8px;">خلص رصيدك المجاني</h1>
-    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;">استخدمت 500 رسالة تذكير مجانية. اشترك عشان تقدر تكمل الإرسال بدون حدود.</p>
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;">استخدمت 50 رسالة تذكير مجانية. اشترك عشان تقدر تكمل الإرسال بدون حدود.</p>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <span style="color:var(--dim);font-size:13px;">اشتراك شهري</span>
@@ -546,7 +546,7 @@ function hasActiveSubscription() {
 }
 
 function canSendMessage() {
-  return hasActiveSubscription() || usageInfo.msgCount < 500;
+  return hasActiveSubscription() || usageInfo.msgCount < 50;
 }
 
 function bumpMsgCount() {
