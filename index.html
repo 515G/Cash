@@ -467,21 +467,25 @@ function doLogout() {
 }
 
 function loadFromCloud() {
-  return fbDb.collection('backups').doc(currentUser.uid).get().then(snap=>{
+  const uid = currentUser.uid;
+  return fbDb.collection('backups').doc(uid).get().then(snap=>{
+    suppressPush = true;
     if (snap.exists && snap.data().payload) {
-      suppressPush = true;
       localStorage.setItem(SK, snap.data().payload);
-      suppressPush = false;
+    } else {
+      localStorage.setItem(SK, JSON.stringify({debts:[],log:[]}));
     }
+    suppressPush = false;
   }).catch(err=>{ console.error(err); toast('⚠️ ما قدرنا نجيب النسخة من السحابة'); });
 }
 
 function pushToCloud() {
   if (!currentUser || suppressPush) return;
+  const uid = currentUser.uid;
   clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(()=>{
     const raw = localStorage.getItem(SK);
-    fbDb.collection('backups').doc(currentUser.uid).set({payload: raw, updatedAt: Date.now()}, {merge:true}).catch(err=>console.error(err));
+    fbDb.collection('backups').doc(uid).set({payload: raw, updatedAt: Date.now()}, {merge:true}).catch(err=>console.error(err));
   }, 700);
 }
 
@@ -529,24 +533,27 @@ function saveProfile() {
   }).catch(err=>{ document.getElementById('pfErr').textContent = 'صار خطأ، جرب بعد شوي'; });
 }
 
-let usageInfo = {msgCount:0, subscribed:false, subExpiry:0};
+let usageInfo = {msgCount:0, subscribed:false, subExpiry:''};
 
 function loadUsage() {
   return fbDb.collection('backups').doc(currentUser.uid).get().then(snap=>{
     const data = snap.exists ? snap.data() : null;
     usageInfo.msgCount = (data && typeof data.msgCount==='number') ? data.msgCount : 0;
     usageInfo.subscribed = !!(data && data.subscribed);
-    usageInfo.subExpiry = (data && data.subExpiry) ? data.subExpiry : 0;
+    usageInfo.subExpiry = (data && data.subExpiry) ? data.subExpiry : '';
+    fbDb.collection('backups').doc(currentUser.uid).set({email: currentUser.email}, {merge:true}).catch(()=>{});
     updateUsageBadge();
   });
 }
 
 function hasActiveSubscription() {
-  return usageInfo.subscribed && usageInfo.subExpiry && usageInfo.subExpiry > Date.now();
+  if (!usageInfo.subscribed || !usageInfo.subExpiry) return false;
+  const expiryTs = new Date(usageInfo.subExpiry + 'T23:59:59').getTime();
+  return expiryTs > Date.now();
 }
 
 function canSendMessage() {
-  return hasActiveSubscription() || usageInfo.msgCount < 500;
+  return hasActiveSubscription() || usageInfo.msgCount < 50;
 }
 
 function bumpMsgCount() {
@@ -559,8 +566,7 @@ function updateUsageBadge() {
   const el = document.getElementById('usageBadge');
   if (!el) return;
   if (hasActiveSubscription()) {
-    const d = new Date(usageInfo.subExpiry);
-    el.textContent = '⭐ مشترك — لغاية ' + d.toLocaleDateString('ar-JO');
+    el.textContent = '⭐ مشترك — لغاية ' + usageInfo.subExpiry;
   } else {
     const remaining = Math.max(0, 50 - usageInfo.msgCount);
     el.textContent = '📩 رسائل متبقية: ' + remaining + ' / 50';
@@ -595,6 +601,7 @@ fbAuth.onAuthStateChanged(user => {
       }
     });
   } else {
+    clearTimeout(cloudSyncTimer);
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('profileScreen').style.display = 'none';
     setAppVisible(false);
