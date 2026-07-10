@@ -546,7 +546,7 @@ function hasActiveSubscription() {
 }
 
 function canSendMessage() {
-  return hasActiveSubscription() || usageInfo.msgCount < 50;
+  return hasActiveSubscription() || usageInfo.msgCount < 500;
 }
 
 function bumpMsgCount() {
