@@ -48,7 +48,10 @@ h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
       <div class="ig"><label>إيميل الزبون (صاحب المحل)</label><input class="ifield" type="email" id="searchEmail"></div>
       <button class="bsub bgray" onclick="searchUser()">🔍 بحث</button>
       <div class="err" id="searchErr"></div>
+      <button class="bsub bgray" onclick="listAllUsers()" style="margin-top:14px;">📋 عرض كل الحسابات</button>
     </div>
+
+    <div id="listPanel" class="panel" style="display:none;"></div>
 
     <div id="resultCard" style="display:none;">
       <div class="card">
@@ -114,6 +117,40 @@ fbAuth.onAuthStateChanged(user => {
     document.getElementById('adminPanel').style.display = 'none';
   }
 });
+
+function listAllUsers() {
+  const panel = document.getElementById('listPanel');
+  panel.style.display = 'block';
+  panel.innerHTML = '<div class="info">⏳ عم نجيب القائمة...</div>';
+  fbDb.collection('backups').get().then(snap=>{
+    if (snap.empty) { panel.innerHTML = '<div class="info">ما في حسابات</div>'; return; }
+    let html = '<div class="ptitle" style="font-weight:700;margin-bottom:10px;">كل الحسابات (' + snap.size + ')</div>';
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const label = d.email || ('(بدون إيميل — ' + doc.id.slice(0,8) + '...)');
+      const active = d.subscribed && d.subExpiry && (new Date(d.subExpiry+'T23:59:59').getTime() > Date.now());
+      html += '<button class="bsub bgray" style="text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;" onclick="selectDoc(' + JSON.stringify(doc.id) + ')">' +
+        '<span>' + (active ? '⭐ ' : '') + label + '</span></button>';
+    });
+    panel.innerHTML = html;
+  }).catch(err=>{
+    panel.innerHTML = '<div class="err">صار خطأ: ' + err.message + '</div>';
+  });
+}
+
+function selectDoc(docId) {
+  currentDocId = docId;
+  fbDb.collection('backups').doc(docId).get().then(doc=>{
+    const data = doc.data();
+    document.getElementById('rEmail').textContent = data.email || '(بدون إيميل)';
+    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 500';
+    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
+    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
+    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
+  });
+}
 
 function searchUser() {
   const email = document.getElementById('searchEmail').value.trim();
