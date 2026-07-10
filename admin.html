@@ -55,7 +55,7 @@ h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
 
     <div id="resultCard" style="display:none;">
       <div class="card">
-        <div><span>المعرف (Doc ID):</span><span id="rDocId" style="font-size:10px;color:var(--muted);"></span></div>
+        <div><span>المعرف (Doc ID):</span><span id="rDocId" style="font-size:11px;color:var(--muted);user-select:all;"></span></div>
         <div><span>الإيميل:</span><span id="rEmail"></span></div>
         <div><span>رسائل مستخدمة:</span><span id="rMsg"></span></div>
         <div><span>حالة الاشتراك:</span><span id="rStatus"></span></div>
@@ -119,24 +119,35 @@ fbAuth.onAuthStateChanged(user => {
   }
 });
 
+// مصفوفة مؤقتة لحفظ الحسابات لتجنب مشاكل علامات التنصيص في الـ onclick
+let loadedUsers = {};
+
 function listAllUsers() {
   const panel = document.getElementById('listPanel');
   panel.style.display = 'block';
   panel.innerHTML = '<div class="info">⏳ عم نجيب القائمة...</div>';
+  
   fbDb.collection('backups').get().then(snap=>{
     if (snap.empty) { panel.innerHTML = '<div class="info">ما في حسابات بالداتابيز</div>'; return; }
+    
+    loadedUsers = {}; // تصفير المصفوفة
     let html = '<div class="ptitle" style="font-weight:700;margin-bottom:10px;">كل الحسابات (' + snap.size + ')</div>';
+    
     snap.forEach(doc=>{
       const d = doc.data() || {};
-      const label = d.email || ('(حساب جديد/بدون إيميل — ' + doc.id.slice(0,12) + '...)');
+      const id = doc.id;
+      loadedUsers[id] = d; // حفظ البيانات محلياً
+      
+      const label = d.email || ('(بدون إيميل — ' + id.slice(0,8) + '...)');
       
       let active = false;
       if (d.subscribed && d.subExpiry) {
         try { active = (new Date(d.subExpiry+'T23:59:59').getTime() > Date.now()); } catch(e){}
       }
       
-      html += '<button class="bsub bgray" style="text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;" onclick="selectDoc(' + JSON.stringify(doc.id) + ')">' +
-        '<span>' + (active ? '⭐ ' : '') + label + '</span> <span style="font-size:10px;color:var(--muted);">' + doc.id.slice(0,5) + '</span></button>';
+      // تم التعديل هنا لتمرير الـ ID بأمان تاري وبدون كراش
+      html += `<button class="bsub bgray" style="text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;" onclick="selectDoc('${id}')">` +
+        `<span>${active ? '⭐ ' : ''}${label}</span> <span style="font-size:10px;color:var(--muted);">${id.slice(0,5)}</span></button>`;
     });
     panel.innerHTML = html;
   }).catch(err=>{
@@ -147,7 +158,7 @@ function listAllUsers() {
 function displayUserData(docId, data) {
   if (!data) data = {};
   document.getElementById('rDocId').textContent = docId;
-  document.getElementById('rEmail').textContent = data.email || '(لم يكتب بيانات بعد)';
+  document.getElementById('rEmail').textContent = data.email || '(حساب جديد / بدون إيميل)';
   
   let active = false;
   if (data.subscribed && data.subExpiry) {
@@ -170,11 +181,15 @@ function displayUserData(docId, data) {
 
 function selectDoc(docId) {
   currentDocId = docId;
+  // جلب البيانات مباشرة للتأكد من أحدث حالة من السيرفر
   fbDb.collection('backups').doc(docId).get().then(doc=>{
-    // حتى لو المستند فارغ أو غير موجود، بنخليه يفتح عشان تقدر تعدل عليه وتفعله
     displayUserData(docId, doc.exists ? doc.data() : {});
     document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
-  }).catch(err => alert('خطأ: ' + err.message));
+  }).catch(err => {
+    // إذا فشل السيرفر لأي سبب، نعرض المحفوظ محلياً كخيار احتياطي
+    displayUserData(docId, loadedUsers[docId] || {});
+    document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
+  });
 }
 
 function searchUser() {
@@ -183,16 +198,13 @@ function searchUser() {
   document.getElementById('resultCard').style.display = 'none';
   if (!queryStr) { document.getElementById('searchErr').textContent = 'اكتب الإيميل أو الـ UID للبحث'; return; }
   
-  // أولاً: محاولة جلب الحساب مباشرة باعتبار أن النص المُدخل هو الـ Document ID (الـ UID)
   fbDb.collection('backups').doc(queryStr).get().then(doc => {
     if (doc.exists) {
       currentDocId = doc.id;
       displayUserData(doc.id, doc.data());
     } else {
-      // ثانياً: إذا لم يعثر عليه كـ UID، نبحث عنه بواسطة حقل الـ email
       fbDb.collection('backups').where('email', '==', queryStr).limit(1).get().then(snap => {
         if (snap.empty) {
-          // جولة فحص أخيرة بحروف صغيرة بالكامل تجنباً لمشاكل الكابيتال والسمول
           fbDb.collection('backups').where('email', '==', queryStr.toLowerCase()).limit(1).get().then(snap2 => {
             if (snap2.empty) {
               document.getElementById('searchErr').textContent = 'لم يتم العثور على الحساب بالإيميل أو المعرف المكتوب';
@@ -224,7 +236,6 @@ function activate(days) {
   if (!currentDocId) return;
   const expiry = addDays(days);
   
-  // نستخدم set مع merge لتجنب المشاكل حتى لو الحساب جديد كلياً بالداتابيز ولضمان الحفظ
   fbDb.collection('backups').doc(currentDocId).set({
     subscribed: true, 
     subExpiry: expiry, 
