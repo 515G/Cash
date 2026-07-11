@@ -122,26 +122,6 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:200;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
 .toast.show{transform:translateX(-50%) translateY(0);}
-#printArea{display:none;}
-.pv-head{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:14px;}
-.pv-shop{font-size:20px;font-weight:800;}
-.pv-owner{font-size:13px;color:#444;margin-top:2px;}
-.pv-title{font-size:15px;font-weight:700;margin-top:10px;}
-.pv-date{font-size:11px;color:#666;margin-top:4px;}
-.pv-cust{margin-bottom:14px;font-size:13px;}
-.pv-cust div{display:flex;justify-content:space-between;padding:3px 0;}
-.pv-cust span:first-child{color:#555;}
-.pv-table{width:100%;border-collapse:collapse;margin-bottom:14px;}
-.pv-table th,.pv-table td{border:1px solid #999;padding:7px 9px;font-size:12.5px;text-align:right;}
-.pv-table th{background:#eee;}
-.pv-total{display:flex;justify-content:space-between;font-size:16px;font-weight:800;border-top:2px solid #000;padding-top:10px;}
-.pv-footer{text-align:center;font-size:12px;color:#666;margin-top:24px;}
-
-@media print{
-  body *{visibility:hidden;}
-  #printArea, #printArea *{visibility:visible;}
-  #printArea{display:block !important;position:absolute;top:0;right:0;left:0;background:#fff;color:#000;padding:24px;font-family:'Cairo',sans-serif;}
-}
 </style>
 </head>
 <body>
@@ -942,23 +922,56 @@ function printStatement(key) {
   const d = load();
   const groups = groupByCustomer(d.debts);
   const g = groups.find(x=>x.key===key);
-  if (!g) return;
+  if (!g) { toast('⚠️ ما قدرنا نجهز الفاتورة'); return; }
   const unpaid = g.items.filter(x=>!x.paid);
   const total = unpaid.reduce((s,x)=>s+x.amount,0);
 
-  document.getElementById('pvShop').textContent = (userProfile && userProfile.shopName) ? userProfile.shopName : 'سجل الديون';
-  document.getElementById('pvOwner').textContent = (userProfile && userProfile.ownerName) ? userProfile.ownerName : '';
-  document.getElementById('pvDate').textContent = 'تاريخ الإصدار: ' + new Date().toLocaleDateString('ar-JO');
-  document.getElementById('pvCustName').textContent = g.name;
-  document.getElementById('pvCustPhone').textContent = g.phone || '—';
-
-  document.getElementById('pvRows').innerHTML = unpaid.length ? unpaid.map(x=>
+  const shopName = (userProfile && userProfile.shopName) ? esc(userProfile.shopName) : 'سجل الديون';
+  const ownerName = (userProfile && userProfile.ownerName) ? esc(userProfile.ownerName) : '';
+  const dateStr = new Date().toLocaleDateString('ar-JO');
+  const rowsHtml = unpaid.length ? unpaid.map(x=>
     '<tr><td>' + esc(x.desc||'دين') + '</td><td>' + x.date + '</td><td>' + fmtJD(x.amount) + '</td></tr>'
   ).join('') : '<tr><td colspan="3" style="text-align:center;">لا يوجد ديون غير مسددة</td></tr>';
 
-  document.getElementById('pvTotal').textContent = fmtJD(total) + ' د.أ';
+  const html = '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">' +
+    '<title>فاتورة — ' + esc(g.name) + '</title>' +
+    '<style>' +
+    'body{font-family:Tajawal,Cairo,Arial,sans-serif;color:#000;padding:24px;max-width:600px;margin:0 auto;}' +
+    '.pv-head{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:14px;}' +
+    '.pv-shop{font-size:20px;font-weight:800;}' +
+    '.pv-owner{font-size:13px;color:#444;margin-top:2px;}' +
+    '.pv-title{font-size:15px;font-weight:700;margin-top:10px;}' +
+    '.pv-date{font-size:11px;color:#666;margin-top:4px;}' +
+    '.pv-cust{margin-bottom:14px;font-size:13px;}' +
+    '.pv-cust div{display:flex;justify-content:space-between;padding:3px 0;}' +
+    '.pv-cust span:first-child{color:#555;}' +
+    'table{width:100%;border-collapse:collapse;margin-bottom:14px;}' +
+    'th,td{border:1px solid #999;padding:7px 9px;font-size:12.5px;text-align:right;}' +
+    'th{background:#eee;}' +
+    '.pv-total{display:flex;justify-content:space-between;font-size:16px;font-weight:800;border-top:2px solid #000;padding-top:10px;}' +
+    '.pv-footer{text-align:center;font-size:12px;color:#666;margin-top:24px;}' +
+    '</style></head><body>' +
+    '<div class="pv-head">' +
+      '<div class="pv-shop">' + shopName + '</div>' +
+      '<div class="pv-owner">' + ownerName + '</div>' +
+      '<div class="pv-title">كشف حساب / فاتورة</div>' +
+      '<div class="pv-date">تاريخ الإصدار: ' + dateStr + '</div>' +
+    '</div>' +
+    '<div class="pv-cust">' +
+      '<div><span>اسم الزبون:</span><span>' + esc(g.name) + '</span></div>' +
+      '<div><span>رقم الهاتف:</span><span>' + (g.phone ? esc(g.phone) : '—') + '</span></div>' +
+    '</div>' +
+    '<table><thead><tr><th>البيان</th><th>التاريخ</th><th>المبلغ (د.أ)</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+    '<div class="pv-total"><span>الإجمالي المستحق:</span><span>' + fmtJD(total) + ' د.أ</span></div>' +
+    '<div class="pv-footer">شكراً لتعاملكم معنا</div>' +
+    '</body></html>';
 
-  window.print();
+  const w = window.open('', '_blank');
+  if (!w) { toast('⚠️ المتصفح منع فتح نافذة جديدة، اسمح بها وجرب تاني'); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>{ w.focus(); w.print(); }, 300);
 }
 
 function renderCustomerModal(key) {
@@ -1023,28 +1036,6 @@ function toast(msg) {
 
 render();
 </script>
-<!-- قالب الفاتورة للطباعة -->
-<div id="printArea">
-  <div class="pv-head">
-    <div class="pv-shop" id="pvShop"></div>
-    <div class="pv-owner" id="pvOwner"></div>
-    <div class="pv-title">كشف حساب / فاتورة</div>
-    <div class="pv-date" id="pvDate"></div>
-  </div>
-  <div class="pv-cust">
-    <div><span>اسم الزبون:</span><span id="pvCustName"></span></div>
-    <div><span>رقم الهاتف:</span><span id="pvCustPhone"></span></div>
-  </div>
-  <table class="pv-table">
-    <thead><tr><th>البيان</th><th>التاريخ</th><th>المبلغ (د.أ)</th></tr></thead>
-    <tbody id="pvRows"></tbody>
-  </table>
-  <div class="pv-total">
-    <span>الإجمالي المستحق:</span>
-    <span id="pvTotal"></span>
-  </div>
-  <div class="pv-footer">شكراً لتعاملكم معنا</div>
-</div>
 
 </body>
 </html>
