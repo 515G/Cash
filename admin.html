@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>لوحة التحكم — بالديون</title>
+<title>لوحة التحكم — سجل الديون</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b0d12;--surface:#13161f;--surface2:#1a1e2b;--border:#252a3a;--green:#00d97e;--red:#ff4d6d;--gold:#f5c842;--blue:#3d8bff;--text:#e8eaf0;--muted:#636b85;}
@@ -77,9 +77,9 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;min-h
       <div class="ig"><input class="ifield" type="email" id="searchEmail" placeholder="إيميل الزبون"></div>
       <button class="bsub bgray" onclick="searchUser()">بحث</button>
       <div class="err" id="searchErr"></div>
+    </div>
 
-      <div class="divider">أو</div>
-
+    <div class="panel">
       <div class="sectitle">📋 تصفح كل الحسابات</div>
       <button class="bsub bblue" onclick="listAllUsers()">عرض القائمة الكاملة</button>
       <ul class="acctlist" id="listPanel" style="display:none;margin-top:12px;"></ul>
@@ -107,6 +107,8 @@ body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;min-h
           <button class="bsub bred" onclick="deactivate()">❌ إلغاء الاشتراك</button>
           <button class="bsub bgray" onclick="resetMsgCount()">🔄 تصفير عداد الرسائل</button>
         </div>
+        <div class="sectitle" style="margin-top:14px;color:var(--red);">⚠️ منطقة خطر</div>
+        <button class="bsub" style="background:var(--surface2);color:var(--red);border:1.5px solid var(--red);" onclick="deleteAccountData()">🗑️ حذف بيانات الحساب نهائياً</button>
       </div>
     </div>
 
@@ -254,6 +256,16 @@ function resetMsgCount() {
   fbDb.collection('backups').doc(currentDocId).set({msgCount:0}, {merge:true}).then(()=>{
     alert('✅ تم تصفير العداد');
     refreshResult();
+  }).catch(err=> alert('خطأ: ' + err.message));
+}
+
+function deleteAccountData() {
+  if (!currentDocId) return;
+  const sure = window.confirm('متأكد؟ رح يتحذف كل بيانات هالحساب (الزبائن، الديون، الاشتراك) نهائياً من السحابة. ما في رجعة!\n\nملاحظة: هاد بيحذف البيانات بس، صاحب الحساب لسا بيقدر يسجل دخول بإيميله وكلمة سره (حساب فاضي).');
+  if (!sure) return;
+  fbDb.collection('backups').doc(currentDocId).delete().then(()=>{
+    alert('🗑 تم حذف بيانات الحساب');
+    closeResult();
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 </script>
