@@ -306,6 +306,7 @@ input[type=tel].ifield{direction:ltr;text-align:right;}
   </div>
   <div class="cmbody">
     <div class="cmtotal"><div class="v" id="cmTotal">JD 0.00</div><div class="l">إجمالي الدين غير المسدد</div></div>
+    <button id="cmPayAllBtn" style="width:100%;padding:12px;margin-bottom:14px;background:linear-gradient(135deg,#00d97e,#00b868);border:none;border-radius:var(--rs);color:#002a18;font-size:13.5px;font-weight:800;">✅ تسديد كل الدين دفعة وحدة</button>
     <div class="cmactions">
       <button class="aabtn wa" id="cmWaBtn" style="flex:1;padding:11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--dim);font-size:12px;font-weight:700;">📱 إرسال تذكير</button>
       <button id="cmQuickBtn" style="flex:1;text-align:center;padding:11px;background:rgba(61,139,255,0.1);border:1px solid rgba(61,139,255,0.3);border-radius:var(--rs);color:var(--blue);font-size:12px;font-weight:700;">دين جديد ⊕</button>
@@ -774,6 +775,30 @@ function quickAddForCustomer(name, phone) {
   toast('👆 عبّي المبلغ وسجّل دين جديد لـ '+name);
 }
 
+function payAllDebts(key) {
+  const d = load();
+  const groups = groupByCustomer(d.debts);
+  const g = groups.find(x=>x.key===key);
+  if (!g) return;
+  const unpaid = g.items.filter(x=>!x.paid);
+  if (!unpaid.length) { toast('🎉 ما في ديون غير مسددة أصلاً'); return; }
+  const total = unpaid.reduce((s,x)=>s+x.amount,0);
+  openMo('✅','تسديد كل الدين','هل تم تسديد كامل دين '+g.name+' بقيمة '+fmtJD(total)+' د.أ ('+unpaid.length+' دين)؟',()=>{
+    const d2 = load();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ar-JO'), timeStr = now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
+    d2.debts.filter(x=>!x.paid && custKeyOf(x.name,x.phone)===key).forEach(x=>{
+      x.paid = true;
+      x.paidDate = dateStr;
+      x.paidTs = now.getTime();
+      d2.log.unshift({id:Date.now()+Math.floor(Math.random()*1000), action:'pay', debtId:x.id, name:x.name, phone:x.phone, type:x.type, desc:x.desc, amount:x.amount, ts:now.getTime(), date:dateStr, time:timeStr});
+    });
+    save(d2); render();
+    if (openCustKey) renderCustomerModal(openCustKey);
+    toast('✅ تم تسديد كامل الدين');
+  });
+}
+
 function payDebt(id) {
   const d=load();
   const deb = d.debts.find(x=>x.id===id);
@@ -998,6 +1023,7 @@ function renderCustomerModal(key) {
   }
   document.getElementById('cmQuickBtn').onclick = () => quickAddForCustomer(g.name, g.phone);
   document.getElementById('cmPrintBtn').onclick = () => printStatement(g.key);
+  document.getElementById('cmPayAllBtn').onclick = () => payAllDebts(g.key);
 
   const unpaidHtml = unpaid.length ? unpaid.map(x=>`
     <div class="cmitem">
