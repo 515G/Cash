@@ -3,29 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>لوحة التحكم — سجل الديون</title>
+<title>لوحة التحكم — بالديون</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b0d12;--surface:#13161f;--surface2:#1a1e2b;--border:#252a3a;--green:#00d97e;--red:#ff4d6d;--gold:#f5c842;--blue:#3d8bff;--text:#e8eaf0;--muted:#636b85;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Cairo',sans-serif;min-height:100vh;}
-.wrap{max-width:480px;margin:0 auto;padding:24px 16px 60px;}
-h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:16px;}
+.wrap{max-width:480px;margin:0 auto;padding:22px 16px 60px;}
+.topbar{text-align:center;margin-bottom:22px;}
+.topbar h1{font-size:18px;font-weight:800;}
+.topbar p{font-size:11.5px;color:var(--muted);margin-top:4px;}
+
+.sectitle{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--muted);font-size:11.5px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
 .ig{margin-bottom:12px;}
 .ig label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;}
 .ifield{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Cairo';font-size:15px;outline:none;direction:ltr;text-align:right;}
-.bsub{width:100%;padding:12px;border:none;border-radius:10px;font-family:'Cairo';font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;}
+
+.bsub{width:100%;padding:12px;border:none;border-radius:10px;font-family:'Cairo';font-size:14px;font-weight:700;cursor:pointer;}
 .bim{background:linear-gradient(135deg,#00d97e,#00b868);color:#002a18;}
 .bgold{background:linear-gradient(135deg,#f5c842,#d9a832);color:#2a2000;}
 .bgray{background:var(--surface2);color:var(--text);border:1.5px solid var(--border);}
 .bred{background:var(--surface2);color:var(--red);border:1.5px solid var(--red);}
-.row{display:flex;gap:8px;}
+.bblue{background:var(--surface2);color:var(--blue);border:1.5px solid rgba(61,139,255,0.4);}
+.row{display:flex;gap:8px;margin-bottom:8px;}
 .row .bsub{flex:1;}
-.err{color:var(--red);font-size:12.5px;min-height:16px;margin-bottom:8px;}
-.info{color:var(--muted);font-size:12.5px;margin-bottom:8px;}
+.stack .bsub{margin-bottom:8px;}
+.stack .bsub:last-child{margin-bottom:0;}
+
+.err{color:var(--red);font-size:12.5px;margin-top:8px;}
+.info{color:var(--muted);font-size:12.5px;text-align:center;padding:8px;}
+
+.acctlist{list-style:none;max-height:340px;overflow-y:auto;}
+.acctrow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;cursor:pointer;font-size:13px;}
+.acctrow:active{border-color:var(--blue);}
+.acctrow .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right;}
+.acctrow .star{color:var(--gold);flex-shrink:0;}
+
+.resultwrap{display:none;}
+.resulthead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.resulthead .sectitle{margin-bottom:0;}
+.closex{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;}
 .card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;}
-.card div{font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;direction:ltr;}
+.card div{font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between;direction:ltr;}
+.card div:last-child{margin-bottom:0;}
 .card div span:first-child{color:var(--muted);direction:rtl;}
 .badge{padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 .badge.on{background:rgba(0,217,126,0.15);color:var(--green);}
@@ -34,43 +58,59 @@ h1{font-size:20px;font-weight:800;text-align:center;margin-bottom:20px;}
 </head>
 <body>
 <div class="wrap">
-  <h1>⚙️ لوحة تحكم — سجل الديون</h1>
+  <div class="topbar">
+    <h1>⚙️ لوحة تحكم سجل الديون</h1>
+    <p>تفعيل وإدارة اشتراكات أصحاب المحلات</p>
+  </div>
 
   <div id="loginPanel" class="panel">
     <div class="ig"><label>إيميل المدير</label><input class="ifield" type="email" id="adEmail"></div>
     <div class="ig"><label>كلمة السر</label><input class="ifield" type="password" id="adPass"></div>
-    <div class="err" id="loginErr"></div>
     <button class="bsub bim" onclick="adminLogin()">دخول</button>
+    <div class="err" id="loginErr"></div>
   </div>
 
   <div id="adminPanel" style="display:none;">
+
     <div class="panel">
-      <div class="ig"><label>إيميل الزبون (صاحب المحل)</label><input class="ifield" type="email" id="searchEmail"></div>
-      <button class="bsub bgray" onclick="searchUser()">🔍 بحث</button>
+      <div class="sectitle">🔍 دوّر عن حساب بالإيميل</div>
+      <div class="ig"><input class="ifield" type="email" id="searchEmail" placeholder="إيميل الزبون"></div>
+      <button class="bsub bgray" onclick="searchUser()">بحث</button>
       <div class="err" id="searchErr"></div>
-      <button class="bsub bgray" onclick="listAllUsers()" style="margin-top:14px;">📋 عرض كل الحسابات</button>
+
+      <div class="divider">أو</div>
+
+      <div class="sectitle">📋 تصفح كل الحسابات</div>
+      <button class="bsub bblue" onclick="listAllUsers()">عرض القائمة الكاملة</button>
+      <ul class="acctlist" id="listPanel" style="display:none;margin-top:12px;"></ul>
     </div>
 
-    <div id="listPanel" class="panel" style="display:none;"></div>
-
-    <div id="resultCard" style="display:none;">
-      <div class="card">
-        <div><span>الإيميل:</span><span id="rEmail"></span></div>
-        <div><span>رسائل مستخدمة:</span><span id="rMsg"></span></div>
-        <div><span>حالة الاشتراك:</span><span id="rStatus"></span></div>
-        <div><span>ينتهي بتاريخ:</span><span id="rExpiry"></span></div>
-      </div>
+    <div id="resultwrap" class="resultwrap">
       <div class="panel">
+        <div class="resulthead">
+          <div class="sectitle" style="margin-bottom:0;">👤 تفاصيل الحساب</div>
+          <button class="closex" onclick="closeResult()">✕</button>
+        </div>
+        <div class="card">
+          <div><span>الإيميل:</span><span id="rEmail"></span></div>
+          <div><span>رسائل مستخدمة:</span><span id="rMsg"></span></div>
+          <div><span>حالة الاشتراك:</span><span id="rStatus"></span></div>
+          <div><span>ينتهي بتاريخ:</span><span id="rExpiry"></span></div>
+        </div>
+        <div class="sectitle">تفعيل الاشتراك</div>
         <div class="row">
           <button class="bsub bim" onclick="activate(30)">✅ فعّل شهر</button>
           <button class="bsub bgold" onclick="activate(365)">✅ فعّل سنة</button>
         </div>
-        <button class="bsub bred" onclick="deactivate()">❌ إلغاء الاشتراك</button>
-        <button class="bsub bgray" onclick="resetMsgCount()">🔄 تصفير عداد الرسائل</button>
+        <div class="sectitle" style="margin-top:14px;">إجراءات أخرى</div>
+        <div class="stack">
+          <button class="bsub bred" onclick="deactivate()">❌ إلغاء الاشتراك</button>
+          <button class="bsub bgray" onclick="resetMsgCount()">🔄 تصفير عداد الرسائل</button>
+        </div>
       </div>
     </div>
 
-    <button class="bsub bgray" onclick="adminLogout()">⏻ خروج</button>
+    <button class="bsub bgray" onclick="adminLogout()" style="margin-top:6px;">⏻ تسجيل خروج</button>
   </div>
 </div>
 
@@ -91,6 +131,7 @@ firebase.initializeApp(firebaseConfig);
 const fbAuth = firebase.auth();
 const fbDb = firebase.firestore();
 const ADMIN_EMAIL = 'abdurrahmanb1222@gmail.com';
+const FREE_LIMIT = 50;
 let currentDocId = null;
 
 function adminLogin() {
@@ -109,53 +150,43 @@ function adminLogin() {
 function adminLogout() { fbAuth.signOut(); }
 
 fbAuth.onAuthStateChanged(user => {
-  if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-    document.getElementById('loginPanel').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
-  } else {
-    document.getElementById('loginPanel').style.display = 'block';
-    document.getElementById('adminPanel').style.display = 'none';
-  }
+  const authed = user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  document.getElementById('loginPanel').style.display = authed ? 'none' : 'block';
+  document.getElementById('adminPanel').style.display = authed ? 'block' : 'none';
+  if (!authed) closeResult();
 });
 
-function listAllUsers() {
-  const panel = document.getElementById('listPanel');
-  panel.style.display = 'block';
-  panel.innerHTML = '<div class="info">⏳ عم نجيب القائمة...</div>';
-  fbDb.collection('backups').get().then(snap=>{
-    if (snap.empty) { panel.innerHTML = '<div class="info">ما في حسابات</div>'; return; }
-    let html = '<div class="ptitle" style="font-weight:700;margin-bottom:10px;">كل الحسابات (' + snap.size + ')</div>';
-    snap.forEach(doc=>{
-      const d = doc.data();
-      const label = d.email || ('(بدون إيميل — ' + doc.id.slice(0,8) + '...)');
-      const active = d.subscribed && d.subExpiry && (new Date(d.subExpiry+'T23:59:59').getTime() > Date.now());
-      html += "<button class='bsub bgray' style='text-align:right;margin-bottom:6px;display:flex;justify-content:space-between;' onclick='selectDoc(" + JSON.stringify(doc.id) + ")'>" +
-        '<span>' + (active ? '⭐ ' : '') + label + '</span></button>';
-    });
-    panel.innerHTML = html;
-  }).catch(err=>{
-    panel.innerHTML = '<div class="err">صار خطأ: ' + err.message + '</div>';
-  });
+function closeResult() {
+  currentDocId = null;
+  document.getElementById('resultwrap').style.display = 'none';
 }
 
-function selectDoc(docId) {
+function isActive(data) {
+  return !!(data.subscribed && data.subExpiry && new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
+}
+
+function renderResult(docId, data) {
   currentDocId = docId;
-  fbDb.collection('backups').doc(docId).get().then(doc=>{
-    const data = doc.data();
-    document.getElementById('rEmail').textContent = data.email || '(بدون إيميل)';
-    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 50';
-    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
-    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
-    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
-    document.getElementById('resultCard').style.display = 'block';
-    document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
+  document.getElementById('rEmail').textContent = data.email || '(بدون إيميل)';
+  document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / ' + FREE_LIMIT;
+  const active = isActive(data);
+  document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
+  document.getElementById('rExpiry').textContent = data.subExpiry || '-';
+  document.getElementById('resultwrap').style.display = 'block';
+  document.getElementById('resultwrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function refreshResult() {
+  if (!currentDocId) return;
+  fbDb.collection('backups').doc(currentDocId).get().then(doc=>{
+    if (doc.exists) renderResult(currentDocId, doc.data());
   });
 }
 
 function searchUser() {
   const email = document.getElementById('searchEmail').value.trim();
   document.getElementById('searchErr').textContent = '';
-  document.getElementById('resultCard').style.display = 'none';
+  closeResult();
   if (!email) { document.getElementById('searchErr').textContent = 'اكتب إيميل الزبون'; return; }
   fbDb.collection('backups').where('email','==', email).limit(1).get().then(snap=>{
     if (snap.empty) {
@@ -163,16 +194,35 @@ function searchUser() {
       return;
     }
     const doc = snap.docs[0];
-    currentDocId = doc.id;
-    const data = doc.data();
-    document.getElementById('rEmail').textContent = data.email || '-';
-    document.getElementById('rMsg').textContent = (data.msgCount||0) + ' / 50';
-    const active = data.subscribed && data.subExpiry && (new Date(data.subExpiry+'T23:59:59').getTime() > Date.now());
-    document.getElementById('rStatus').innerHTML = active ? '<span class="badge on">مشترك ✅</span>' : '<span class="badge off">مش مشترك</span>';
-    document.getElementById('rExpiry').textContent = data.subExpiry || '-';
-    document.getElementById('resultCard').style.display = 'block';
+    renderResult(doc.id, doc.data());
   }).catch(err=>{
     document.getElementById('searchErr').textContent = 'صار خطأ: ' + err.message;
+  });
+}
+
+function listAllUsers() {
+  const panel = document.getElementById('listPanel');
+  panel.style.display = 'block';
+  panel.innerHTML = '<li class="info">⏳ عم نجيب القائمة...</li>';
+  fbDb.collection('backups').get().then(snap=>{
+    if (snap.empty) { panel.innerHTML = '<li class="info">ما في حسابات مسجلة</li>'; return; }
+    panel.innerHTML = snap.docs.map(doc=>{
+      const d = doc.data();
+      const label = d.email || ('بدون إيميل — ' + doc.id.slice(0,8) + '...');
+      const active = isActive(d);
+      return "<li class='acctrow' onclick='selectDoc(" + JSON.stringify(doc.id) + ")'>" +
+        "<span class='lbl'>" + label + "</span>" +
+        (active ? "<span class='star'>⭐</span>" : "") +
+        "</li>";
+    }).join('');
+  }).catch(err=>{
+    panel.innerHTML = '<li class="err">صار خطأ: ' + err.message + '</li>';
+  });
+}
+
+function selectDoc(docId) {
+  fbDb.collection('backups').doc(docId).get().then(doc=>{
+    if (doc.exists) renderResult(docId, doc.data());
   });
 }
 
@@ -187,7 +237,7 @@ function activate(days) {
   const expiry = addDays(days);
   fbDb.collection('backups').doc(currentDocId).set({subscribed:true, subExpiry: expiry}, {merge:true}).then(()=>{
     alert('✅ تم تفعيل الاشتراك لغاية ' + expiry);
-    searchUser();
+    refreshResult();
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 
@@ -195,7 +245,7 @@ function deactivate() {
   if (!currentDocId) return;
   fbDb.collection('backups').doc(currentDocId).set({subscribed:false}, {merge:true}).then(()=>{
     alert('✅ تم إلغاء الاشتراك');
-    searchUser();
+    refreshResult();
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 
@@ -203,7 +253,7 @@ function resetMsgCount() {
   if (!currentDocId) return;
   fbDb.collection('backups').doc(currentDocId).set({msgCount:0}, {merge:true}).then(()=>{
     alert('✅ تم تصفير العداد');
-    searchUser();
+    refreshResult();
   }).catch(err=> alert('خطأ: ' + err.message));
 }
 </script>
