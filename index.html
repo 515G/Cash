@@ -877,11 +877,13 @@ function promptAdjust(key, dir) {
   if (raw===null) return;
   const amt = parseFloat(raw);
   if (isNaN(amt) || amt<=0) { toast('💰 أدخل مبلغاً صحيحاً'); return; }
+  const reasonLabel = dir==='inc' ? 'سبب الدين (اختياري):' : 'سبب التخفيض (اختياري):';
+  const reasonRaw = window.prompt(reasonLabel, '');
   const now = new Date();
   const dateStr = now.toLocaleDateString('ar-JO'), timeStr = now.toLocaleTimeString('ar-JO',{hour:'2-digit',minute:'2-digit'});
   const debtId = Date.now();
   const signedAmt = dir==='inc' ? amt : -amt;
-  const desc = dir==='inc' ? 'زيادة دين' : 'دفعة / تخفيض دين';
+  const desc = (reasonRaw && reasonRaw.trim()) ? reasonRaw.trim() : (dir==='inc' ? 'زيادة دين' : 'دفعة / تخفيض دين');
   const d2 = load();
   d2.debts.unshift({id:debtId, type:'lent', name:g.name, phone:g.phone, desc, amount:signedAmt, paid:false, isAdj:true, ts:now.getTime(), date:dateStr, time:timeStr});
   d2.log.unshift({id:debtId+1, action: dir==='inc' ? 'add' : 'pay', debtId, name:g.name, phone:g.phone, type:'lent', desc, amount:amt, ts:now.getTime(), date:dateStr, time:timeStr});
